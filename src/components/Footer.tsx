@@ -108,9 +108,9 @@ const Footer: React.FC<FooterProps> = ({ isVisible, setIsVisible }) => {
           </h3>
           <p className="text-sm text-white ">
             Développeur Full-Stack. React, Next.js, TypeScript, Node.js.
-            Actuellement en cours de création d\'un site portfolio sous forme de
-            jeu vidéo avec Three.js. N\'hésitez pas à me contacter pour toute
-            question ou opportunité de collaboration.
+            Actuellement en cours de création d&apos;un site portfolio sous
+            forme de jeu vidéo avec Three.js. N&apos;hésitez pas à me contacter
+            pour toute question ou opportunité de collaboration.
           </p>
         </div>
 
