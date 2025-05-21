@@ -150,19 +150,19 @@ function Model({
     }
   });
 
-  const handlePointerOver = (event: any) => {
+  const handlePointerOver = (event: React.PointerEvent<THREE.Object3D>) => {
     event.stopPropagation();
     setIsHovered(true);
     document.body.style.cursor = "pointer";
   };
 
-  const handlePointerOut = (event: any) => {
+  const handlePointerOut = (event: React.PointerEvent<THREE.Object3D>) => {
     event.stopPropagation();
     setIsHovered(false);
     document.body.style.cursor = "auto";
   };
 
-  const handleClick = (event: any) => {
+  const handleClick = (event: React.MouseEvent<THREE.Object3D>) => {
     event.stopPropagation();
     window.open(url, "_blank");
   };
@@ -194,7 +194,6 @@ function CarouselScene({ models = [], onFocusChange }: CarouselSceneProps) {
 
   const [currentYRotation, setCurrentYRotation] = useState(0.0);
   const dragStateRef = useRef({ isDragging: false, prevX: 0 });
-  const [isDragging, setIsDragging] = useState(false);
 
   const { carouselRadius, modelScale, modelYOffset, levaHoverScaleMultiplier } =
     useControls("Carousel Settings", {
@@ -251,7 +250,6 @@ function CarouselScene({ models = [], onFocusChange }: CarouselSceneProps) {
     const handlePointerDown = (event: PointerEvent) => {
       dragStateRef.current.isDragging = true;
       dragStateRef.current.prevX = event.clientX;
-      setIsDragging(true);
       domElement.setPointerCapture(event.pointerId);
       event.preventDefault();
     };
@@ -275,7 +273,6 @@ function CarouselScene({ models = [], onFocusChange }: CarouselSceneProps) {
     const handlePointerUpOrLeave = (event: PointerEvent) => {
       if (dragStateRef.current.isDragging) {
         dragStateRef.current.isDragging = false;
-        setIsDragging(false);
         domElement.releasePointerCapture(event.pointerId);
       }
     };
@@ -291,7 +288,7 @@ function CarouselScene({ models = [], onFocusChange }: CarouselSceneProps) {
       domElement.removeEventListener("pointerup", handlePointerUpOrLeave);
       domElement.removeEventListener("pointerleave", handlePointerUpOrLeave);
     };
-  }, [gl, setCurrentYRotation, setIsDragging, DRAG_SENSITIVITY]);
+  }, [gl, setCurrentYRotation, DRAG_SENSITIVITY]);
 
   return (
     <group ref={groupRef}>
@@ -299,7 +296,7 @@ function CarouselScene({ models = [], onFocusChange }: CarouselSceneProps) {
         const angle = (index / models.length) * Math.PI * 2;
         let currentModelInitialX = Math.cos(angle) * carouselRadius;
         let currentModelInitialZ = Math.sin(angle) * carouselRadius;
-        let initialModelYRotation = angle + Math.PI;
+        const initialModelYRotation = angle + Math.PI;
 
         if (model.path.endsWith("/5xt.glb")) {
           currentModelInitialX = -2;
@@ -342,7 +339,6 @@ const Carousel3D: React.FC<CarouselProps> = ({
   models,
   onModelFocusStatusChange,
 }) => {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [focusedModelDescription, setFocusedModelDescription] = useState<
     string | null
   >(null);

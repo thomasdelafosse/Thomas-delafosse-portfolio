@@ -1,14 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import {
-  FaGithub,
-  FaLinkedin,
-  FaEnvelope,
-  FaDiscord,
-  FaTwitter,
-} from "react-icons/fa";
+import { FaGithub, FaEnvelope, FaDiscord } from "react-icons/fa";
 import localFont from "next/font/local";
-import { FaX, FaXTwitter } from "react-icons/fa6";
 
 // Define Meddon font
 const meddon = localFont({
@@ -115,8 +108,8 @@ const Footer: React.FC<FooterProps> = ({ isVisible, setIsVisible }) => {
           </h3>
           <p className="text-sm text-white ">
             Développeur Full-Stack. React, Next.js, TypeScript, Node.js.
-            Actuellement en cours de création d'un site portfolio sous forme de
-            jeu vidéo avec Three.js. N'hésitez pas à me contacter pour toute
+            Actuellement en cours de création d\'un site portfolio sous forme de
+            jeu vidéo avec Three.js. N\'hésitez pas à me contacter pour toute
             question ou opportunité de collaboration.
           </p>
         </div>
@@ -131,7 +124,7 @@ const Footer: React.FC<FooterProps> = ({ isVisible, setIsVisible }) => {
               aria-label="x"
               className="text-white hover:text-white transition-colors flex items-center"
             >
-              <FaXTwitter size={24} className="ml-1" />
+              X
             </a>
             <a
               href="https://github.com/thomasdelafosse"

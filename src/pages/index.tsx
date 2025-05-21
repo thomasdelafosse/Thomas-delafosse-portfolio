@@ -47,12 +47,6 @@ export default function Home() {
   const [isAnyModelFocused, setIsAnyModelFocused] = useState(false);
   const [isFooterVisible, setIsFooterVisible] = useState(false);
 
-  const handleLogoClick = () => {
-    document
-      .getElementById("page-footer")
-      ?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <div
       // Always use the original background gradient
