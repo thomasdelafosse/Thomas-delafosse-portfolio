@@ -1,8 +1,129 @@
-import React, { useRef, useState, Suspense, useEffect } from "react";
+import React, { useRef, useState, Suspense, useEffect, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import {
+  OrbitControls,
+  useGLTF,
+  useTexture,
+  Plane,
+  Billboard,
+} from "@react-three/drei";
 import * as THREE from "three";
 import { useControls, button, Leva } from "leva";
+
+// New component for the starfield effect
+function Starfield({ count = 5000 }) {
+  const pointsRef = useRef<THREE.Points>(null!); // Use ref to access points object
+
+  const [geometry, material] = useMemo(() => {
+    const vertices = [];
+    const colors = [];
+    const animationPhases = []; // For individual twinkle animation
+
+    const baseColor = new THREE.Color(0xffffff);
+
+    for (let i = 0; i < count; i++) {
+      const r = THREE.MathUtils.randFloat(50, 100);
+      const phi = Math.random() * Math.PI * 2;
+      const theta = Math.random() * Math.PI;
+      const x = r * Math.sin(theta) * Math.cos(phi);
+      const y = r * Math.sin(theta) * Math.sin(phi);
+      const z = r * Math.cos(theta);
+      vertices.push(x, y, z);
+
+      colors.push(baseColor.r, baseColor.g, baseColor.b);
+      animationPhases.push(Math.random() * Math.PI * 2); // Random phase for each star
+    }
+
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(vertices, 3)
+    );
+    geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    geom.setAttribute(
+      "animationPhase",
+      new THREE.Float32BufferAttribute(animationPhases, 1)
+    );
+
+    const mat = new THREE.PointsMaterial({
+      size: 0.3,
+      transparent: true,
+      opacity: 0.9, // Slightly more opaque for better twinkle visibility
+      sizeAttenuation: true,
+      vertexColors: true, // Enable vertex colors
+    });
+    return [geom, mat];
+  }, [count]);
+
+  useFrame((state, delta) => {
+    if (pointsRef.current) {
+      const geom = pointsRef.current.geometry as THREE.BufferGeometry;
+      const colorAttribute = geom.attributes.color as THREE.BufferAttribute;
+      const phaseAttribute = geom.attributes
+        .animationPhase as THREE.BufferAttribute;
+      const time = state.clock.elapsedTime;
+
+      const twinkleSpeed = 3.0; // Speed of the twinkle oscillation
+      const twinklePower = 5.0; // Higher power = sharper, briefer bright phase
+      const minBrightness = 0.1; // Minimum brightness of a star
+      const maxBrightness = 1.0; // Maximum brightness of a star
+
+      for (let i = 0; i < count; i++) {
+        const phase = phaseAttribute.getX(i);
+
+        // Normalize sine wave output to 0-1 range
+        const normalizedSine = (Math.sin(time * twinkleSpeed + phase) + 1) / 2;
+
+        // Apply power to create sharp peaks (star spends more time dim)
+        const poweredSine = Math.pow(normalizedSine, twinklePower);
+
+        // Map to desired brightness range
+        const twinkleFactor =
+          poweredSine * (maxBrightness - minBrightness) + minBrightness;
+
+        colorAttribute.setXYZ(i, twinkleFactor, twinkleFactor, twinkleFactor);
+      }
+      colorAttribute.needsUpdate = true;
+      // Optional: Rotate the whole starfield slowly
+      // pointsRef.current.rotation.y += delta * 0.01;
+    }
+  });
+
+  return <points ref={pointsRef} geometry={geometry} material={material} />;
+}
+
+const PLANET_IMAGE_PATHS = [
+  "/images/sweetSpot/planets2.webp", // For Top-left
+  "/images/sweetSpot/planets3.webp", // For Top-right
+  "/images/sweetSpot/planets.webp", // For Bottom-left
+  "/images/sweetSpot/planets4.webp", // For Bottom-right
+];
+
+// Renamed back to StarfieldAndBackgroundController, only handles BG and Starfield
+function StarfieldAndBackgroundController({
+  focusedPath,
+}: {
+  focusedPath: string | null | undefined;
+}) {
+  const { scene } = useThree();
+
+  useEffect(() => {
+    const is5xtFocused = focusedPath?.endsWith("/5xt.glb");
+    if (is5xtFocused) {
+      scene.background = new THREE.Color("black");
+    } else {
+      scene.background = null; // Revert to default (transparent/gradient from lighting)
+    }
+    return () => {
+      scene.background = null;
+    };
+  }, [focusedPath, scene]);
+
+  if (focusedPath?.endsWith("/5xt.glb")) {
+    return <Starfield />;
+  }
+  return null;
+}
 
 function CameraUpdater() {
   const { camera, size } = useThree();
@@ -28,7 +149,10 @@ interface ModelProps {
   modelIndex: number;
   numModels: number;
   carouselRotationY: number;
-  onFocusChange: (description: string | null) => void;
+  onFocusChange: (focusData: {
+    description: string | null;
+    path: string | null;
+  }) => void;
 }
 
 function Model({
@@ -90,14 +214,14 @@ function Model({
               2
             )}`
           );
-          onFocusChange(description);
+          onFocusChange({ description: description, path: path });
         } else {
           console.log(
             `Model LEFT focus: ${path}, DiffFromFront: ${angleDifferenceFromFront.toFixed(
               2
             )}`
           );
-          onFocusChange(null);
+          onFocusChange({ description: null, path: null });
         }
         wasInFocusRef.current = isInFocus;
       }
@@ -185,7 +309,10 @@ function Model({
 
 interface CarouselSceneProps {
   models: Array<{ path: string; description: string; url: string }>;
-  onFocusChange: (description: string | null) => void;
+  onFocusChange: (focusData: {
+    description: string | null;
+    path: string | null;
+  }) => void;
 }
 
 function CarouselScene({ models = [], onFocusChange }: CarouselSceneProps) {
@@ -339,10 +466,12 @@ const Carousel3D: React.FC<CarouselProps> = ({
   models,
   onModelFocusStatusChange,
 }) => {
-  const [focusedModelDescription, setFocusedModelDescription] = useState<
-    string | null
-  >(null);
+  const [focusedModelInfo, setFocusedModelInfo] = useState<{
+    description: string | null;
+    path: string | null;
+  } | null>(null);
   const [isLandscapeMobile, setIsLandscapeMobile] = useState(false);
+  const [animationTime, setAnimationTime] = useState(0); // New state for animation
 
   const {
     ambientLightIntensity,
@@ -361,11 +490,21 @@ const Carousel3D: React.FC<CarouselProps> = ({
     ),
   });
 
+  // New handler for focus changes
+  const handleFocusChange = (
+    focusData: { description: string | null; path: string | null } | null
+  ) => {
+    setFocusedModelInfo(focusData);
+    if (onModelFocusStatusChange) {
+      onModelFocusStatusChange(!!focusData?.description);
+    }
+  };
+
   useEffect(() => {
     if (onModelFocusStatusChange) {
-      onModelFocusStatusChange(!!focusedModelDescription);
+      onModelFocusStatusChange(!!focusedModelInfo?.description);
     }
-  }, [focusedModelDescription, onModelFocusStatusChange]);
+  }, [focusedModelInfo, onModelFocusStatusChange]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(
@@ -416,11 +555,79 @@ const Carousel3D: React.FC<CarouselProps> = ({
     overflowY: "auto",
     boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
     whiteSpace: "pre-line",
-    opacity: focusedModelDescription ? 1 : 0,
+    opacity: focusedModelInfo?.description ? 1 : 0,
     transition:
       "opacity 0.5s ease-in-out, transform 0.5s ease-in-out, padding 0.3s ease, font-size 0.3s ease, max-width 0.3s ease, max-height 0.3s ease, left 0.3s ease, top 0.3s ease",
-    pointerEvents: focusedModelDescription ? "auto" : "none",
+    pointerEvents: focusedModelInfo?.description ? "auto" : "none",
   };
+
+  const showCornerPlanets = focusedModelInfo?.path?.endsWith("/5xt.glb");
+
+  const cornerImageBaseStyle: React.CSSProperties = {
+    position: "absolute",
+    width: "200px", // Adjust size as needed
+    height: "200px", // Adjust size as needed
+    objectFit: "contain",
+    zIndex: 5, // Above canvas, potentially adjust if other UI overlaps
+    transition: "opacity 0.5s ease-in-out",
+    opacity: showCornerPlanets ? 1 : 0,
+    pointerEvents: showCornerPlanets ? "auto" : "none",
+  };
+
+  // Animation parameters
+  const floatAmplitude = 5; // Max pixels to move up/down
+  const floatSpeed = 1.2; // Controls the speed of the floating
+
+  const planetImageStyles: React.CSSProperties[] = [
+    {
+      // Top-left
+      ...cornerImageBaseStyle,
+      top: "20px",
+      left: "20px",
+      transform: `translateY(${
+        Math.sin(animationTime * floatSpeed) * floatAmplitude
+      }px)`,
+    },
+    {
+      // Top-right
+      ...cornerImageBaseStyle,
+      top: "20px",
+      right: "20px",
+      transform: `translateY(${
+        Math.sin(animationTime * floatSpeed + Math.PI / 2) * floatAmplitude
+      }px)`,
+    },
+    {
+      // Bottom-left
+      ...cornerImageBaseStyle,
+      bottom: "20px",
+      left: "20px",
+      transform: `translateY(${
+        Math.sin(animationTime * floatSpeed + Math.PI) * floatAmplitude
+      }px)`,
+    },
+    {
+      // Bottom-right
+      ...cornerImageBaseStyle,
+      bottom: "20px",
+      right: "20px",
+      transform: `translateY(${
+        Math.sin(animationTime * floatSpeed + (3 * Math.PI) / 2) *
+        floatAmplitude
+      }px)`,
+    },
+  ];
+
+  // Effect for animation loop
+  useEffect(() => {
+    let animationFrameId: number;
+    const animate = (timestamp: number) => {
+      setAnimationTime(timestamp / 1000); // Convert to seconds for smoother speed control
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    animationFrameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
 
   return (
     <div
@@ -441,6 +648,11 @@ const Carousel3D: React.FC<CarouselProps> = ({
           intensity={pointLightIntensity}
         />
 
+        {/* Controller for background and starfield based on focus */}
+        <StarfieldAndBackgroundController
+          focusedPath={focusedModelInfo?.path}
+        />
+
         <OrbitControls
           enableZoom={false}
           enablePan={false}
@@ -448,14 +660,21 @@ const Carousel3D: React.FC<CarouselProps> = ({
           target={[0, 0, 0]}
         />
         <Suspense fallback={null}>
-          <CarouselScene
-            models={models}
-            onFocusChange={setFocusedModelDescription}
-          />
+          <CarouselScene models={models} onFocusChange={handleFocusChange} />
         </Suspense>
       </Canvas>
 
-      <div style={descriptionStyle}>{focusedModelDescription || ""}</div>
+      <div style={descriptionStyle}>{focusedModelInfo?.description || ""}</div>
+
+      {/* 2D Planet Images in Corners */}
+      {PLANET_IMAGE_PATHS.map((path, index) => (
+        <img
+          key={`planet-${index}`}
+          src={path}
+          alt={`Planet ${index + 1}`}
+          style={planetImageStyles[index]}
+        />
+      ))}
     </div>
   );
 };
