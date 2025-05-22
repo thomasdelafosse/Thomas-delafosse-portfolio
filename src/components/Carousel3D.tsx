@@ -1011,7 +1011,6 @@ const Carousel3D: React.FC<CarouselProps> = ({
         <StarfieldAndBackgroundController
           focusedPath={focusedModelInfo?.path}
           videoTexturePath="/images/mathieuLg/texture_noir.mp4"
-          focusedModelInfo={focusedModelInfo}
           models={models}
         />
 
