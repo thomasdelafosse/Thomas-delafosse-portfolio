@@ -26,19 +26,19 @@ const projectModels = [
   {
     path: "/5xt.glb",
     description:
-      "Sweet Spot Paris, FEB 2025 – MARS 2025\n  https://sweetspot.paris or click on the 3D model\n\n• Création d'une billetterie pour un événement avec Next.js et TypeScript\n• Gestion d'email transactionnel avec Resend\n• Réplique d'un studio Dolby Atmos en 3D avec Three.js",
+      "Sweet Spot Paris, FEB 2025 – MAR 2025\n  https://sweetspot.paris or click on the 3D model\n\n• Creation of a ticket office website with Next.js and TypeScript\n• Transactional email management with Resend\n• 3D replica of a Dolby Atmos studio with Three.js",
     url: "https://sweetspot.paris",
   },
   {
     path: "/3Dzebre.glb",
     description:
-      "Mathieu Le Gal, MAR 2025 - APR 2025\n https://mathieulegal.com or click on the 3D model\n\n• Création d'un site portfolio pour Mathieu Le Gal\n • Design fait par Mathieu Le Gal\n• Outils utilisés : TypeScript, Tailwind, Next.js, Three.js",
+      "Mathieu Le Gal, MAR 2025 - APR 2025\n https://mathieulegal.com or click on the 3D model\n\n• Creation of a portfolio website for Mathieu Le Gal\n • Design made by Mathieu Le Gal\n• Tools used : TypeScript, Next.js, Three.js, Tailwind",
     url: "https://mathieulegal.com",
   },
   {
     path: "/3Dchably.glb",
     description:
-      "Maison Mine, JAN 2025 – FÉV 2025\n https://maisonmine.com or click on the 3D model\n\n• Site web pour l'entreprise Maison Mine\n• Modification du design à venir\n• Outils utilisées : TypeScript, Tailwind, Next.js, Sanity CMS, Three.js, 3daistudio, Photoshop",
+      "Maison Mine, JAN 2025 – FEB 2025\n https://maisonmine.com or click on the 3D model\n\n• Website for the Maison Mine company\n• Tools used : TypeScript, Next.js, Three.js, Tailwind, Sanity CMS, 3daistudio, Photoshop",
     url: "https://maisonmine.com",
   },
 ];
