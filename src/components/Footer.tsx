@@ -1,84 +1,122 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { FaGithub, FaEnvelope, FaDiscord } from "react-icons/fa";
 import localFont from "next/font/local";
 
 // Define Meddon font
 const RougeScript = localFont({
-  src: "../../public/fonts/Birthstone-Regular.ttf", // Adjusted path for Footer.tsx
+  src: "../../public/fonts/Birthstone-Regular.ttf",
   variable: "--font-Birthstone",
 });
 
 interface FooterProps {
   isVisible: boolean;
-  setIsVisible: (isVisible: boolean) => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ isVisible, setIsVisible }) => {
-  const lastScrollY = useRef(0);
+const ANIMATION_DURATION = 500; // ms
+
+const Footer: React.FC<FooterProps> = ({ isVisible }) => {
   const [isMobilePortrait, setIsMobilePortrait] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
+  const [footerHidden, setFooterHidden] = useState(false);
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
+
+  // Animation states for buttons
+  const [showAboutMe, setShowAboutMe] = useState(false);
+  const [aboutMeVisible, setAboutMeVisible] = useState(false);
+  const [aboutMeLeaving, setAboutMeLeaving] = useState(false);
+
+  const [showClose, setShowClose] = useState(true);
+  const [closeLeaving, setCloseLeaving] = useState(false);
+
+  const aboutMeTimeout = useRef<NodeJS.Timeout | null>(null);
+  const closeTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(
+    const mediaQueryPortrait = window.matchMedia(
       "(max-width: 767px) and (orientation: portrait)"
     );
-    const handleChange = (e: MediaQueryListEvent | { matches: boolean }) => {
+    const mediaQueryLandscape = window.matchMedia("(orientation: landscape)");
+
+    const handlePortraitChange = (
+      e: MediaQueryListEvent | { matches: boolean }
+    ) => {
       setIsMobilePortrait(e.matches);
     };
+    const handleLandscapeChange = (
+      e: MediaQueryListEvent | { matches: boolean }
+    ) => {
+      setIsLandscape(e.matches);
+    };
+    const handleResize = () => {
+      setIsMobileOrTablet(window.innerWidth < 1024);
+    };
 
-    handleChange(mediaQuery); // Initial check
+    handlePortraitChange(mediaQueryPortrait); // Initial check
+    handleLandscapeChange(mediaQueryLandscape);
+    handleResize();
 
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", handleChange);
-    } else if (mediaQuery.addListener) {
-      // Fallback for older browsers
-      mediaQuery.addListener(handleChange);
+    if (mediaQueryPortrait.addEventListener) {
+      mediaQueryPortrait.addEventListener("change", handlePortraitChange);
+      mediaQueryLandscape.addEventListener("change", handleLandscapeChange);
+    } else if (mediaQueryPortrait.addListener) {
+      mediaQueryPortrait.addListener(handlePortraitChange);
+      mediaQueryLandscape.addListener(handleLandscapeChange);
     }
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener("change", handleChange);
-      } else if (mediaQuery.removeListener) {
-        // Fallback for older browsers
-        mediaQuery.removeListener(handleChange);
+      if (mediaQueryPortrait.removeEventListener) {
+        mediaQueryPortrait.removeEventListener("change", handlePortraitChange);
+        mediaQueryLandscape.removeEventListener(
+          "change",
+          handleLandscapeChange
+        );
+      } else if (mediaQueryPortrait.removeListener) {
+        mediaQueryPortrait.removeListener(handlePortraitChange);
+        mediaQueryLandscape.removeListener(handleLandscapeChange);
       }
+      window.removeEventListener("resize", handleResize);
+      if (aboutMeTimeout.current) clearTimeout(aboutMeTimeout.current);
+      if (closeTimeout.current) clearTimeout(closeTimeout.current);
     };
   }, []);
 
+  // Handle About me button animation
   useEffect(() => {
-    const initialScrollY = window.scrollY;
-    lastScrollY.current = initialScrollY;
+    if (footerHidden && isLandscape && isMobileOrTablet) {
+      setShowAboutMe(true);
+      setTimeout(() => setAboutMeVisible(true), 10); // allow render before animating in
+    } else {
+      setAboutMeLeaving(true);
+      aboutMeTimeout.current = setTimeout(() => {
+        setAboutMeVisible(false);
+        setShowAboutMe(false);
+        setAboutMeLeaving(false);
+      }, ANIMATION_DURATION);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [footerHidden, isLandscape, isMobileOrTablet]);
 
-    const isInitiallyAtBottom =
-      Math.ceil(window.innerHeight + initialScrollY) >=
-      document.documentElement.scrollHeight;
-    setIsVisible(isInitiallyAtBottom);
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const isAtBottom =
-        Math.ceil(window.innerHeight + currentScrollY) >=
-        document.documentElement.scrollHeight;
-
-      if (currentScrollY < lastScrollY.current && currentScrollY > 0) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(isAtBottom);
-      }
-
-      lastScrollY.current = currentScrollY <= 0 ? 0 : currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [setIsVisible]);
+  // Handle Close button animation
+  useEffect(() => {
+    if (!footerHidden && isLandscape && isMobileOrTablet) {
+      setShowClose(true);
+      setTimeout(() => setCloseLeaving(false), 10);
+    } else {
+      setCloseLeaving(true);
+      closeTimeout.current = setTimeout(() => {
+        setShowClose(false);
+        setCloseLeaving(false);
+      }, ANIMATION_DURATION);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [footerHidden, isLandscape, isMobileOrTablet]);
 
   if (isMobilePortrait) {
     return (
       <div className="fixed inset-0 bg-gradient-to-b from-gray-900 to-black flex flex-col items-center justify-center text-white text-xl z-[9999] p-8 text-center">
-        <div className="mb-8">
+        <div className="mb-6">
           <Image
             src="/images/logoBlanc.png"
             alt="Logo"
@@ -93,36 +131,106 @@ const Footer: React.FC<FooterProps> = ({ isVisible, setIsVisible }) => {
     );
   }
 
+  // Animated About me button (only on mobile/tablet landscape)
+  if (showAboutMe && isLandscape && isMobileOrTablet) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          bottom: "1rem",
+          right: "1rem",
+          zIndex: 10000,
+          opacity: aboutMeVisible && !aboutMeLeaving ? 1 : 0,
+          transform:
+            aboutMeVisible && !aboutMeLeaving
+              ? "translateY(0)"
+              : "translateY(20px)",
+          transition: `opacity 0.5s ease-in-out, transform 0.5s ease-in-out`,
+          pointerEvents: aboutMeVisible && !aboutMeLeaving ? "auto" : "none",
+        }}
+      >
+        <button
+          className="bg-[#2d2d2d] text-white px-4 py-2 rounded-lg shadow-lg font-mono text-sm hover:bg-[#444] transition-colors"
+          onClick={() => {
+            setAboutMeLeaving(true);
+            setAboutMeVisible(false);
+            setTimeout(() => {
+              setShowAboutMe(false);
+              setFooterHidden(false);
+              setAboutMeLeaving(false);
+            }, ANIMATION_DURATION);
+          }}
+        >
+          About me
+        </button>
+      </div>
+    );
+  }
+
   return (
     <footer
       id="page-footer"
-      className={`w-full h-28 bg-black text-white py-4 transition-transform duration-500 ease-in-out ${
+      className={`fixed bottom-0 left-0 w-full bg-transparent transition-transform duration-500 ease-in-out z-50 ${
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}
     >
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
-        {/* About Me Section */}
-        <div className="mb-6 md:mb-0 md:w-1/2 text-center md:text-left">
-          <h3 className={`text-3xl font-bold mb-2 ${RougeScript.className}`}>
-            Thomas Delafosse
-          </h3>
-          <p className="text-sm text-white ">
-            Développeur Full-Stack. React, Next.js, TypeScript, Node.js.
-            Actuellement en cours de création d&apos;un site portfolio sous
-            forme de jeu vidéo avec Three.js. N&apos;hésitez pas à me contacter
-            pour toute question ou opportunité de collaboration.
-          </p>
-        </div>
+      <div className="bg-[#2d2d2d] rounded-2xl shadow-lg p-4 text-white w-full mx-auto text-left relative">
+        {/* Animated Close button only in landscape and mobile/tablet */}
+        {showClose && isLandscape && isMobileOrTablet && !footerHidden && (
+          <div
+            style={{
+              position: "absolute",
+              top: 8,
+              right: 16,
+              opacity: !closeLeaving ? 1 : 0,
+              transform: !closeLeaving ? "translateY(0)" : "translateY(20px)",
+              transition: `opacity 0.5s ease-in-out, transform 0.5s ease-in-out`,
+              zIndex: 10,
+              pointerEvents: !closeLeaving ? "auto" : "none",
+            }}
+          >
+            <button
+              className="bg-[#444] text-white px-2 py-1 rounded font-mono text-xs hover:bg-[#666] transition-colors"
+              onClick={() => {
+                setCloseLeaving(true);
+                setTimeout(() => {
+                  setFooterHidden(true);
+                  setCloseLeaving(false);
+                }, ANIMATION_DURATION);
+              }}
+            >
+              Close
+            </button>
+          </div>
+        )}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-8">
+          {/* About Me Section */}
+          <div className="md:w-1/2">
+            <h3 className={`text-3xl font-bold mb-2 ${RougeScript.className}`}>
+              Thomas Delafosse
+            </h3>
+            <div className="flex flex-col gap-0.5 text-base">
+              <span>
+                Développeur Full-Stack Freelance. React, Next.js, TypeScript,
+                Node.js. Feel free to contact me for any question or
+                collaboration opportunity.
+              </span>
+              <span>
+                I'm currently working on a portfolio site in the form of a video
+                game with Three.js.
+              </span>
+            </div>
+          </div>
 
-        {/* Contact Me Section */}
-        <div className="md:w-1/2 text-center md:text-right">
-          <div className="flex justify-center md:justify-end space-x-8 mt-12">
+          {/* Contact Me Section */}
+
+          <div className="flex flex-col gap-1 items-end mr-2 mt-10 lg:mt-0">
             <a
-              href="https://x.com/ThomasDelafosse" // Replace # with your Discord invite link
+              href="https://x.com/ThomasDelafosse"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="x"
-              className="text-white hover:text-white transition-colors flex items-center"
+              className="text-white hover:text-gray-300 transition-colors flex items-center"
             >
               X
             </a>
@@ -131,26 +239,26 @@ const Footer: React.FC<FooterProps> = ({ isVisible, setIsVisible }) => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
-              className="text-white hover:text-white transition-colors flex items-center"
+              className="text-white hover:text-gray-300 transition-colors flex items-center"
             >
-              github <FaGithub size={24} className="ml-1" />
+              github <FaGithub size={20} className="ml-1" />
             </a>
             <a
-              href="https://discord.gg/EPkpq95t" // Replace # with your Discord invite link
+              href="https://discord.gg/EPkpq95t"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Discord"
-              className="text-white hover:text-white transition-colors flex items-center"
+              className="text-white hover:text-gray-300 transition-colors flex items-center"
             >
-              discord <FaDiscord size={24} className="ml-1" />
+              discord <FaDiscord size={20} className="ml-1" />
             </a>
-
             <a
               href="mailto:bonjour@thomasdelafosse.com"
               aria-label="Email"
-              className="text-white hover:text-white transition-colors flex items-center"
+              className="text-white hover:text-gray-300 transition-colors flex items-center"
             >
-              email <FaEnvelope size={24} className="ml-1" />
+              bonjour@thomasdelafosse.com{" "}
+              <FaEnvelope size={20} className="ml-1" />
             </a>
           </div>
         </div>

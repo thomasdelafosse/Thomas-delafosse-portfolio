@@ -330,6 +330,22 @@ function StarfieldAndBackgroundController({
   const { scene, gl } = useThree();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoTextureRef = useRef<THREE.VideoTexture | null>(null);
+  const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
+
+  // Handler for user interaction to play video
+  const handlePlayVideo = () => {
+    if (videoRef.current) {
+      videoRef.current
+        .play()
+        .then(() => {
+          setNeedsUserInteraction(false);
+        })
+        .catch((err) => {
+          // Still failed, keep overlay
+          setNeedsUserInteraction(true);
+        });
+    }
+  };
 
   useEffect(() => {
     const is5xtFocused = focusedPath?.endsWith("/5xt.glb");
@@ -343,7 +359,13 @@ function StarfieldAndBackgroundController({
         video.crossOrigin = "anonymous";
         video.loop = true;
         video.muted = true; // Important for autoplay
-        video.play().catch((err) => console.error("Video play failed:", err));
+        video.playsInline = true; // For iOS
+        video.autoplay = true;
+        video.play().catch((err) => {
+          // If NotAllowedError, require user interaction
+          setNeedsUserInteraction(true);
+          console.error("Video play failed:", err);
+        });
         videoRef.current = video;
       }
       if (videoRef.current && !videoTextureRef.current) {
@@ -367,6 +389,7 @@ function StarfieldAndBackgroundController({
         videoRef.current.load();
         videoRef.current = null;
       }
+      setNeedsUserInteraction(false);
     } else {
       scene.background = null; // Revert to default
       // Clean up video texture if it was used for zebre
@@ -380,6 +403,7 @@ function StarfieldAndBackgroundController({
         videoRef.current.load();
         videoRef.current = null;
       }
+      setNeedsUserInteraction(false);
     }
 
     return () => {
@@ -395,6 +419,7 @@ function StarfieldAndBackgroundController({
         videoRef.current.load();
         videoRef.current = null;
       }
+      setNeedsUserInteraction(false);
     };
   }, [focusedPath, scene, videoTexturePath]);
 
@@ -413,6 +438,43 @@ function StarfieldAndBackgroundController({
           focusedModelInfo={focusedModelInfo}
           models={models}
         />
+      )}
+      {/* Overlay for user interaction if needed */}
+      {needsUserInteraction && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.7)",
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "white",
+            fontSize: "1.5rem",
+            flexDirection: "column",
+          }}
+        >
+          <button
+            style={{
+              padding: "1em 2em",
+              fontSize: "1.2rem",
+              borderRadius: "8px",
+              border: "none",
+              background: "#222",
+              color: "#fff",
+              cursor: "pointer",
+              marginBottom: "1em",
+            }}
+            onClick={handlePlayVideo}
+          >
+            ▶️ Activer la vidéo de fond
+          </button>
+          <span>Appuyez pour activer la vidéo de fond</span>
+        </div>
       )}
     </>
   );
@@ -829,6 +891,19 @@ const Carousel3D: React.FC<CarouselProps> = ({
     };
   }, []);
 
+  // Effect to disable scrolling in mobile landscape when a model is focused
+  useEffect(() => {
+    if (isLandscapeMobile && focusedModelInfo?.description) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isLandscapeMobile, focusedModelInfo?.description]);
+
   const descriptionStyle: React.CSSProperties = {
     position: "absolute",
     left: isLandscapeMobile ? "2%" : "3%",
@@ -851,20 +926,30 @@ const Carousel3D: React.FC<CarouselProps> = ({
     opacity: focusedModelInfo?.description ? 1 : 0,
     transition:
       "opacity 0.5s ease-in-out, transform 0.5s ease-in-out, padding 0.3s ease, font-size 0.3s ease, max-width 0.3s ease, max-height 0.3s ease, left 0.3s ease, top 0.3s ease",
-    pointerEvents: focusedModelInfo?.description ? "auto" : "none",
+    // Only disable pointer events if not visible and not in landscape mobile
+    pointerEvents: isLandscapeMobile
+      ? "auto"
+      : focusedModelInfo?.description
+      ? "auto"
+      : "none",
   };
 
   const showCornerPlanets = focusedModelInfo?.path?.endsWith("/5xt.glb");
 
   const cornerImageBaseStyle: React.CSSProperties = {
     position: "absolute",
-    width: "200px", // Adjust size as needed
-    height: "200px", // Adjust size as needed
+    width: isLandscapeMobile ? "150px" : "200px", // Smaller in landscape mobile
+    height: isLandscapeMobile ? "150px" : "200px", // Smaller in landscape mobile
     objectFit: "contain",
     zIndex: 5, // Above canvas, potentially adjust if other UI overlaps
     transition: "opacity 0.5s ease-in-out",
     opacity: showCornerPlanets ? 1 : 0,
-    pointerEvents: showCornerPlanets ? "auto" : "none",
+    // Always allow pointer events in landscape, otherwise only when visible
+    pointerEvents: isLandscapeMobile
+      ? "auto"
+      : showCornerPlanets
+      ? "auto"
+      : "none",
   };
 
   // Animation parameters

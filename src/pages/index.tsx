@@ -45,7 +45,7 @@ const projectModels = [
 
 export default function Home() {
   const [isAnyModelFocused, setIsAnyModelFocused] = useState(false);
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const isFooterVisible = !isAnyModelFocused;
 
   return (
     <div
@@ -80,7 +80,7 @@ export default function Home() {
           onModelFocusStatusChange={setIsAnyModelFocused}
         />
       </main>
-      <Footer isVisible={isFooterVisible} setIsVisible={setIsFooterVisible} />
+      <Footer isVisible={isFooterVisible} />
     </div>
   );
 }
