@@ -4,9 +4,9 @@ import { FaGithub, FaEnvelope, FaDiscord } from "react-icons/fa";
 import localFont from "next/font/local";
 
 // Define Meddon font
-const meddon = localFont({
-  src: "../../public/fonts/Meddon-Regular.ttf", // Adjusted path for Footer.tsx
-  variable: "--font-meddon",
+const RougeScript = localFont({
+  src: "../../public/fonts/Birthstone-Regular.ttf", // Adjusted path for Footer.tsx
+  variable: "--font-Birthstone",
 });
 
 interface FooterProps {
@@ -103,7 +103,7 @@ const Footer: React.FC<FooterProps> = ({ isVisible, setIsVisible }) => {
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         {/* About Me Section */}
         <div className="mb-6 md:mb-0 md:w-1/2 text-center md:text-left">
-          <h3 className={`text-xl font-medium mb-2 ${meddon.className}`}>
+          <h3 className={`text-3xl font-bold mb-2 ${RougeScript.className}`}>
             Thomas Delafosse
           </h3>
           <p className="text-sm text-white ">
