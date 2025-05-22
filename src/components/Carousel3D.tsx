@@ -1,12 +1,6 @@
 import React, { useRef, useState, Suspense, useEffect, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import {
-  OrbitControls,
-  useGLTF,
-  useTexture,
-  Plane,
-  Billboard,
-} from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useControls, button, Leva } from "leva";
 
@@ -55,7 +49,7 @@ function Starfield({ count = 5000 }) {
     return [geom, mat];
   }, [count]);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (pointsRef.current) {
       const geom = pointsRef.current.geometry as THREE.BufferGeometry;
       const colorAttribute = geom.attributes.color as THREE.BufferAttribute;
@@ -103,16 +97,10 @@ const PLANET_IMAGE_PATHS = [
 interface InteractiveGridProps {
   size: number;
   divisions: number;
-  focusedModelInfo: { description: string | null; path: string | null } | null;
   models: Array<{ path: string; description: string; url: string }>;
 }
 
-function InteractiveGrid({
-  size,
-  divisions,
-  focusedModelInfo,
-  models,
-}: InteractiveGridProps) {
+function InteractiveGrid({ size, divisions, models }: InteractiveGridProps) {
   const groupRef = useRef<THREE.Group>(null);
   const { scene, camera, gl } = useThree();
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
@@ -319,15 +307,13 @@ function InteractiveGrid({
 function StarfieldAndBackgroundController({
   focusedPath,
   videoTexturePath,
-  focusedModelInfo,
   models,
 }: {
   focusedPath: string | null | undefined;
   videoTexturePath: string;
-  focusedModelInfo: { description: string | null; path: string | null } | null;
   models: Array<{ path: string; description: string; url: string }>;
 }) {
-  const { scene, gl } = useThree();
+  const { scene } = useThree();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoTextureRef = useRef<THREE.VideoTexture | null>(null);
   const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
@@ -340,7 +326,7 @@ function StarfieldAndBackgroundController({
         .then(() => {
           setNeedsUserInteraction(false);
         })
-        .catch((err) => {
+        .catch(() => {
           // Still failed, keep overlay
           setNeedsUserInteraction(true);
         });
@@ -432,12 +418,7 @@ function StarfieldAndBackgroundController({
 
       {/* Conditionally render Interactive Grid */}
       {isZebreFocused && (
-        <InteractiveGrid
-          size={20}
-          divisions={30}
-          focusedModelInfo={focusedModelInfo}
-          models={models}
-        />
+        <InteractiveGrid size={20} divisions={30} models={models} />
       )}
       {/* Overlay for user interaction if needed */}
       {needsUserInteraction && (
