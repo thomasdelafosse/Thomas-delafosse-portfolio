@@ -99,30 +99,323 @@ const PLANET_IMAGE_PATHS = [
   "/images/sweetSpot/planets4.webp", // For Bottom-right
 ];
 
+// New component for the interactive grid
+interface InteractiveGridProps {
+  size: number;
+  divisions: number;
+  focusedModelInfo: { description: string | null; path: string | null } | null;
+  models: Array<{ path: string; description: string; url: string }>;
+}
+
+function InteractiveGrid({
+  size,
+  divisions,
+  focusedModelInfo,
+  models,
+}: InteractiveGridProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const { scene, camera, gl } = useThree();
+  const raycaster = useMemo(() => new THREE.Raycaster(), []);
+  const pointer = useMemo(() => new THREE.Vector2(), []);
+
+  const FADE_DURATION = 0.8; // Seconds for the fade effect
+
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      // Calculate pointer position in normalized device coordinates (-1 to +1)
+      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      // Update the raycaster with the camera and pointer position
+      raycaster.setFromCamera(pointer, camera);
+
+      if (groupRef.current) {
+        const interactivePlanes = groupRef.current.children.filter(
+          (obj) => obj.userData.isInteractivePlane
+        );
+
+        // Get all interactable objects (grid planes + potential models)
+        const interactableObjects: THREE.Object3D[] = [...interactivePlanes];
+
+        // Add model objects to interactableObjects list
+        // Assuming model objects are descendants within the scene graph and are Meshes
+        // We filter out the grid planes themselves to avoid duplicates/confusion
+        scene.traverse((obj) => {
+          if (
+            !obj.userData.isInteractivePlane &&
+            (obj as THREE.Mesh).isMesh &&
+            obj.visible
+          ) {
+            interactableObjects.push(obj);
+          }
+        });
+
+        // Perform raycast against all interactable objects
+        const intersects = raycaster.intersectObjects(
+          interactableObjects,
+          true
+        );
+
+        // Reset hover state for all planes first
+        interactivePlanes.forEach((plane) => {
+          if (plane.userData.hoverState.isHovered) {
+            plane.userData.hoverState.isHovered = false;
+            plane.userData.hoverState.lastHoverTime = performance.now(); // Record time when hover ends
+          }
+        });
+
+        // Check if the closest intersected object is a grid plane
+        if (intersects.length > 0) {
+          const closestObject = intersects[0].object;
+          if (closestObject.userData.isInteractivePlane) {
+            const intersectedGridPlane = closestObject as THREE.Mesh;
+            // Set hover state for the intersected grid plane
+            if (!intersectedGridPlane.userData.hoverState.isHovered) {
+              intersectedGridPlane.userData.hoverState.isHovered = true;
+              intersectedGridPlane.userData.hoverState.lastHoverTime = 0; // Reset time when hover starts
+            }
+          }
+          // If the closest object is NOT a grid plane (i.e., a model or other object in front),
+          // we do nothing for the grid hover, which is handled by the reset loop above.
+        }
+      }
+    };
+
+    // Only add pointermove listener to the canvas element
+    gl.domElement.addEventListener("pointermove", handlePointerMove);
+
+    return () => {
+      gl.domElement.removeEventListener("pointermove", handlePointerMove);
+      // Cleanup: ensure all planes are reset when component unmounts
+      if (groupRef.current) {
+        groupRef.current.children.forEach((plane) => {
+          if (plane.userData.isInteractivePlane) {
+            // Cast material to MeshBasicMaterial to access opacity and color
+            const material = (plane as THREE.Mesh)
+              .material as THREE.MeshBasicMaterial;
+            material.opacity = 0.0;
+            material.color.set(0x888888);
+          }
+        });
+      }
+    };
+  }, [camera, gl, raycaster, pointer, FADE_DURATION, models, scene]); // Added models and scene to deps
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      const interactivePlanes = groupRef.current.children.filter(
+        (obj) => obj.userData.isInteractivePlane
+      ) as THREE.Mesh[]; // Cast to Mesh[]
+
+      const currentTime = performance.now(); // Get current time for animation
+
+      interactivePlanes.forEach((plane) => {
+        const material = plane.material as THREE.MeshBasicMaterial; // Cast material to MeshBasicMaterial
+        const hoverState = plane.userData.hoverState;
+
+        if (hoverState.isHovered) {
+          // If hovered, set to black and fully opaque
+          material.color.set(0x000000);
+          material.opacity = 1.0;
+        } else if (hoverState.lastHoverTime > 0) {
+          // If not hovered, and had a last hover time, fade out
+          const elapsed = (currentTime - hoverState.lastHoverTime) / 1000; // Convert to seconds
+          if (elapsed < FADE_DURATION) {
+            // Calculate fade factor (linear from 1 to 0)
+            const fadeFactor = 1.0 - elapsed / FADE_DURATION;
+            material.opacity = fadeFactor;
+            // Keep color black during fade
+            material.color.set(0x000000);
+          } else {
+            // Fade is complete, set back to transparent and reset state
+            material.opacity = 0.0;
+            // material.color.set(0x888888); // Can optionally reset color here if needed later
+            hoverState.lastHoverTime = 0; // Reset time
+          }
+        }
+        // If not hovered and lastHoverTime is 0, it stays transparent (initial state)
+      });
+    }
+  });
+
+  const gridGeometry = useMemo(() => {
+    const cells = [];
+    const lines = [];
+    const cellSize = size / divisions;
+    const halfSize = size / 2;
+    const lineColor = 0x444444; // Dark grey for lines
+
+    // Create interactive planes (squares)
+    for (let i = 0; i < divisions; i++) {
+      for (let j = 0; j < divisions; j++) {
+        const x = i * cellSize - halfSize + cellSize / 2;
+        const z = j * cellSize - halfSize + cellSize / 2;
+
+        const geometry = new THREE.PlaneGeometry(cellSize, cellSize);
+        geometry.rotateX(-Math.PI / 2);
+        geometry.translate(x, 0.01, z); // Slightly raise planes to avoid z-fighting with lines
+
+        const material = new THREE.MeshBasicMaterial({
+          color: 0x888888, // Initial color (will be changed on hover/fade)
+          transparent: true,
+          opacity: 0.0, // Start fully transparent
+          side: THREE.DoubleSide,
+          depthWrite: false, // Important for transparency
+        });
+
+        const plane = new THREE.Mesh(geometry, material);
+        plane.userData = {
+          isInteractivePlane: true,
+          hoverState: {
+            isHovered: false,
+            lastHoverTime: 0, // Timestamp when hover ended (0 when hovered or never hovered)
+          },
+        }; // Mark as interactive and add hover state
+        cells.push(plane);
+      }
+    }
+
+    // Create grid lines
+    const lineMaterial = new THREE.LineBasicMaterial({ color: lineColor });
+
+    // Horizontal lines
+    for (let i = 0; i <= divisions; i++) {
+      const z = i * cellSize - halfSize;
+      const points = [
+        new THREE.Vector3(-halfSize, 0, z),
+        new THREE.Vector3(halfSize, 0, z),
+      ];
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      lines.push(new THREE.LineSegments(lineGeometry, lineMaterial));
+    }
+
+    // Vertical lines
+    for (let j = 0; j <= divisions; j++) {
+      const x = j * cellSize - halfSize;
+      const points = [
+        new THREE.Vector3(x, 0, -halfSize),
+        new THREE.Vector3(x, 0, halfSize),
+      ];
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      lines.push(new THREE.LineSegments(lineGeometry, lineMaterial));
+    }
+
+    return { cells, lines };
+  }, [size, divisions]);
+
+  return (
+    <group ref={groupRef}>
+      {gridGeometry.cells.map((cell, index) => (
+        <primitive key={`cell-${index}`} object={cell} />
+      ))}
+      {gridGeometry.lines.map((line, index) => (
+        <primitive key={`line-${index}`} object={line} />
+      ))}
+    </group>
+  );
+}
+
 // Renamed back to StarfieldAndBackgroundController, only handles BG and Starfield
 function StarfieldAndBackgroundController({
   focusedPath,
+  videoTexturePath,
+  focusedModelInfo,
+  models,
 }: {
   focusedPath: string | null | undefined;
+  videoTexturePath: string;
+  focusedModelInfo: { description: string | null; path: string | null } | null;
+  models: Array<{ path: string; description: string; url: string }>;
 }) {
-  const { scene } = useThree();
+  const { scene, gl } = useThree();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoTextureRef = useRef<THREE.VideoTexture | null>(null);
 
   useEffect(() => {
     const is5xtFocused = focusedPath?.endsWith("/5xt.glb");
-    if (is5xtFocused) {
-      scene.background = new THREE.Color("black");
-    } else {
-      scene.background = null; // Revert to default (transparent/gradient from lighting)
-    }
-    return () => {
-      scene.background = null;
-    };
-  }, [focusedPath, scene]);
+    const isZebreFocused = focusedPath?.endsWith("/3Dzebre.glb");
 
-  if (focusedPath?.endsWith("/5xt.glb")) {
-    return <Starfield />;
-  }
-  return null;
+    if (isZebreFocused) {
+      // Handle Video Texture Background
+      if (!videoRef.current) {
+        const video = document.createElement("video");
+        video.src = videoTexturePath;
+        video.crossOrigin = "anonymous";
+        video.loop = true;
+        video.muted = true; // Important for autoplay
+        video.play().catch((err) => console.error("Video play failed:", err));
+        videoRef.current = video;
+      }
+      if (videoRef.current && !videoTextureRef.current) {
+        const texture = new THREE.VideoTexture(videoRef.current);
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.format = THREE.RGBFormat; // or RGBAFormat if alpha is needed
+        videoTextureRef.current = texture;
+        scene.background = texture;
+      }
+    } else if (is5xtFocused) {
+      scene.background = new THREE.Color("black");
+      // Clean up video texture if it was used for zebre
+      if (videoTextureRef.current) {
+        videoTextureRef.current.dispose();
+        videoTextureRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.src = ""; // Release video resource
+        videoRef.current.load();
+        videoRef.current = null;
+      }
+    } else {
+      scene.background = null; // Revert to default
+      // Clean up video texture if it was used for zebre
+      if (videoTextureRef.current) {
+        videoTextureRef.current.dispose();
+        videoTextureRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.src = "";
+        videoRef.current.load();
+        videoRef.current = null;
+      }
+    }
+
+    return () => {
+      // scene.background = null; // This will be handled by the conditions above
+      // Cleanup on component unmount or before next effect
+      if (videoTextureRef.current) {
+        videoTextureRef.current.dispose();
+        videoTextureRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.src = "";
+        videoRef.current.load();
+        videoRef.current = null;
+      }
+    };
+  }, [focusedPath, scene, videoTexturePath]);
+
+  const isZebreFocused = focusedPath?.endsWith("/3Dzebre.glb");
+
+  return (
+    <>
+      {/* Controller for background and starfield based on focus */}
+      {focusedPath?.endsWith("/5xt.glb") && <Starfield />}
+
+      {/* Conditionally render Interactive Grid */}
+      {isZebreFocused && (
+        <InteractiveGrid
+          size={20}
+          divisions={30}
+          focusedModelInfo={focusedModelInfo}
+          models={models}
+        />
+      )}
+    </>
+  );
 }
 
 function CameraUpdater() {
@@ -651,6 +944,9 @@ const Carousel3D: React.FC<CarouselProps> = ({
         {/* Controller for background and starfield based on focus */}
         <StarfieldAndBackgroundController
           focusedPath={focusedModelInfo?.path}
+          videoTexturePath="/images/mathieuLg/texture_noir.mp4"
+          focusedModelInfo={focusedModelInfo}
+          models={models}
         />
 
         <OrbitControls
