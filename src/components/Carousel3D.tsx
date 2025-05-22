@@ -189,7 +189,7 @@ function InteractiveGrid({ size, divisions, models }: InteractiveGridProps) {
     };
   }, [camera, gl, raycaster, pointer, FADE_DURATION, models, scene]); // Added models and scene to deps
 
-  useFrame((state) => {
+  useFrame(() => {
     if (groupRef.current) {
       const interactivePlanes = groupRef.current.children.filter(
         (obj) => obj.userData.isInteractivePlane

@@ -216,8 +216,8 @@ const Footer: React.FC<FooterProps> = ({ isVisible }) => {
                 collaboration opportunity.
               </span>
               <span>
-                I'm currently working on a portfolio site in the form of a video
-                game with Three.js.
+                I&apos;m currently working on a portfolio site in the form of a
+                video game with Three.js.
               </span>
             </div>
           </div>
