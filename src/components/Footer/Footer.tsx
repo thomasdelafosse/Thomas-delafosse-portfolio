@@ -5,6 +5,7 @@ import AboutMeButton from "./AboutMeButton";
 import CloseButton from "./CloseButton";
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
+import useMediaQueries from "../../hooks/useMediaQueries";
 
 const Birthstone = localFont({
   src: "../../../public/fonts/Birthstone-Regular.ttf",
@@ -18,10 +19,8 @@ interface FooterProps {
 const ANIMATION_DURATION = 500; // ms
 
 const Footer: React.FC<FooterProps> = ({ isVisible }) => {
-  const [isMobilePortrait, setIsMobilePortrait] = useState(false);
-  const [isLandscape, setIsLandscape] = useState(false);
+  const { isMobilePortrait, isLandscape, isMobileOrTablet } = useMediaQueries();
   const [footerHidden, setFooterHidden] = useState(false);
-  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
 
   // Animation states for buttons
   const [showAboutMe, setShowAboutMe] = useState(false);
@@ -33,56 +32,6 @@ const Footer: React.FC<FooterProps> = ({ isVisible }) => {
 
   const aboutMeTimeout = useRef<NodeJS.Timeout | null>(null);
   const closeTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    const mediaQueryPortrait = window.matchMedia(
-      "(max-width: 767px) and (orientation: portrait)"
-    );
-    const mediaQueryLandscape = window.matchMedia("(orientation: landscape)");
-
-    const handlePortraitChange = (
-      e: MediaQueryListEvent | { matches: boolean }
-    ) => {
-      setIsMobilePortrait(e.matches);
-    };
-    const handleLandscapeChange = (
-      e: MediaQueryListEvent | { matches: boolean }
-    ) => {
-      setIsLandscape(e.matches);
-    };
-    const handleResize = () => {
-      setIsMobileOrTablet(window.innerWidth < 1024);
-    };
-
-    handlePortraitChange(mediaQueryPortrait); // Initial check
-    handleLandscapeChange(mediaQueryLandscape);
-    handleResize();
-
-    if (mediaQueryPortrait.addEventListener) {
-      mediaQueryPortrait.addEventListener("change", handlePortraitChange);
-      mediaQueryLandscape.addEventListener("change", handleLandscapeChange);
-    } else if (mediaQueryPortrait.addListener) {
-      mediaQueryPortrait.addListener(handlePortraitChange);
-      mediaQueryLandscape.addListener(handleLandscapeChange);
-    }
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      if (mediaQueryPortrait.removeEventListener) {
-        mediaQueryPortrait.removeEventListener("change", handlePortraitChange);
-        mediaQueryLandscape.removeEventListener(
-          "change",
-          handleLandscapeChange
-        );
-      } else if (mediaQueryPortrait.removeListener) {
-        mediaQueryPortrait.removeListener(handlePortraitChange);
-        mediaQueryLandscape.removeListener(handleLandscapeChange);
-      }
-      window.removeEventListener("resize", handleResize);
-      if (aboutMeTimeout.current) clearTimeout(aboutMeTimeout.current);
-      if (closeTimeout.current) clearTimeout(closeTimeout.current);
-    };
-  }, []);
 
   // Handle About me button animation
   useEffect(() => {
@@ -97,7 +46,9 @@ const Footer: React.FC<FooterProps> = ({ isVisible }) => {
         setAboutMeLeaving(false);
       }, ANIMATION_DURATION);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      if (aboutMeTimeout.current) clearTimeout(aboutMeTimeout.current);
+    };
   }, [footerHidden, isLandscape, isMobileOrTablet]);
 
   // Handle Close button animation
@@ -114,14 +65,15 @@ const Footer: React.FC<FooterProps> = ({ isVisible }) => {
         setCloseLeaving(false);
       }, ANIMATION_DURATION);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      if (closeTimeout.current) clearTimeout(closeTimeout.current);
+    };
   }, [footerHidden, isLandscape, isMobileOrTablet]);
 
   if (isMobilePortrait) {
     return <PortraitWarning />;
   }
 
-  // Animated About me button (only on mobile/tablet landscape)
   if (showAboutMe && isLandscape && isMobileOrTablet) {
     return (
       <AboutMeButton
@@ -148,7 +100,6 @@ const Footer: React.FC<FooterProps> = ({ isVisible }) => {
       }`}
     >
       <div className="bg-[#2d2d2d] rounded-2xl shadow-lg p-4 text-white w-full mx-auto text-left relative">
-        {/* Animated Close button only in landscape and mobile/tablet */}
         {showClose && isLandscape && isMobileOrTablet && !footerHidden && (
           <CloseButton
             leaving={closeLeaving}
@@ -162,10 +113,8 @@ const Footer: React.FC<FooterProps> = ({ isVisible }) => {
           />
         )}
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-8">
-          {/* About Me Section */}
           <AboutMeSection headingClassName={Birthstone.className} />
 
-          {/* Contact Me Section */}
           <ContactSection />
         </div>
       </div>
