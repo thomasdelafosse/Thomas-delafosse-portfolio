@@ -2,9 +2,7 @@ interface AboutMeSectionProps {
   headingClassName?: string;
 }
 
-const AboutMeSection: React.FC<AboutMeSectionProps> = ({
-  headingClassName,
-}) => (
+const AboutMeSection = ({ headingClassName }: AboutMeSectionProps) => (
   <div className="md:w-1/2">
     <h3 className={`text-3xl font-bold mb-2 ${headingClassName ?? ""}`}>
       Thomas Delafosse
