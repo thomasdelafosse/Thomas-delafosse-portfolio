@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
-import Carousel3D from "@/components/Carousel3D";
+import Carousel3D from "@/components/Carousel3D/CarouselCanvas";
 import Footer from "@/components/Footer";
 import { useState } from "react";
 import Image from "next/image";
@@ -49,19 +49,15 @@ export default function Home() {
 
   return (
     <div
-      // Always use the original background gradient
       className={`relative flex flex-col min-h-screen bg-gradient-to-br from-gray-300 to-gray-700 ${geistSans.variable} ${geistMono.variable} ${meddon.variable}`}
     >
-      {/* Darkening overlay */}
       <div
         className={`fixed inset-0 bg-black transition-opacity duration-300 ease-in-out pointer-events-none z-0 ${
           isAnyModelFocused ? "opacity-10" : "opacity-0"
         }`}
       />
-      {/* Ensure other content is relatively positioned or has a higher z-index if needed */}
       <nav className="relative w-full py-4 z-30">
         {" "}
-        {/* Added relative and z-10 */}
         <div className="relative pl-6 pt-2">
           <Image
             src="/images/logoBlanc.png"
@@ -74,7 +70,6 @@ export default function Home() {
       </nav>
       <main className="relative flex-grow flex flex-col items-center justify-center p-4 z-10">
         {" "}
-        {/* Added relative and z-10 */}
         <Carousel3D
           models={projectModels}
           onModelFocusStatusChange={setIsAnyModelFocused}
