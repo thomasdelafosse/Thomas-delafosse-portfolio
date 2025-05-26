@@ -8,14 +8,8 @@ const AboutMeSection = ({ headingClassName }: AboutMeSectionProps) => (
       Thomas Delafosse
     </h3>
     <div className="flex flex-col gap-0.5 text-base">
-      <span>
-        Web Développeur Full-Stack Freelance. React, Next.js, TypeScript,
-        Node.js. Feel free to contact me for any question or collaboration
-        opportunity.
-      </span>
-      <span>
-        I&apos;m currently working on a portfolio site in the form of a video
-        game with Three.js.
+      <span style={{ whiteSpace: "pre-line" }}>
+        {`Web Developer Full-Stack Freelance. React, Next.js, TypeScript, Node.js. \n Doing a course on Three.js + Blender to make a portfolio site in the form of a video game. \n Feel free to contact me for any question or collaboration opportunity. `}
       </span>
     </div>
   </div>
