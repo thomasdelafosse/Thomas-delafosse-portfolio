@@ -94,6 +94,12 @@ const CarouselScene: React.FC<CarouselSceneProps> = ({
         const finalX = currentModelInitialX - sceneCenter.x;
         const finalY = modelYOffset - sceneCenter.y;
         const finalZ = currentModelInitialZ - sceneCenter.z;
+
+        let currentModelScale = modelScale;
+        if (model.path.endsWith("/models/camera.glb")) {
+          currentModelScale = modelScale * 5;
+        }
+
         return (
           <Model
             key={`${model.path}-${index}`}
@@ -102,7 +108,7 @@ const CarouselScene: React.FC<CarouselSceneProps> = ({
             url={model.url}
             position={[finalX, finalY, finalZ]}
             rotation={[0, initialModelYRotation, 0]}
-            scale={modelScale}
+            scale={currentModelScale}
             hoverScaleMultiplier={levaHoverScaleMultiplier}
             modelIndex={index}
             numModels={models.length}

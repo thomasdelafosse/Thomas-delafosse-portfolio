@@ -34,7 +34,8 @@ const CarouselCanvas = ({
   );
   useBodyOverflowOnFocus(isLandscapeMobile, focusedModelInfo);
 
-  const showCornerPlanets = !!focusedModelInfo?.path?.endsWith("/5xt.glb");
+  const showCornerPlanets =
+    !!focusedModelInfo?.path?.endsWith("/models/5xt.glb");
 
   return (
     <div

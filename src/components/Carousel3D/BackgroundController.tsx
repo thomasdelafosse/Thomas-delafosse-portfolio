@@ -31,8 +31,8 @@ const BackgroundController: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    const is5xtFocused = focusedPath?.endsWith("/5xt.glb");
-    const isZebreFocused = focusedPath?.endsWith("/3Dzebre.glb");
+    const is5xtFocused = focusedPath?.endsWith("/models/5xt.glb");
+    const isZebreFocused = focusedPath?.endsWith("/models/camera.glb");
     if (isZebreFocused) {
       if (!videoRef.current) {
         const video = document.createElement("video");
@@ -95,11 +95,11 @@ const BackgroundController: React.FC<Props> = ({
     };
   }, [focusedPath, scene, videoTexturePath]);
 
-  const isZebreFocused = focusedPath?.endsWith("/3Dzebre.glb");
+  const isZebreFocused = focusedPath?.endsWith("/models/camera.glb");
 
   return (
     <>
-      {focusedPath?.endsWith("/5xt.glb") && <Starfield />}
+      {focusedPath?.endsWith("/models/5xt.glb") && <Starfield />}
       {isZebreFocused && (
         <InteractiveGrid size={20} divisions={30} models={models} />
       )}

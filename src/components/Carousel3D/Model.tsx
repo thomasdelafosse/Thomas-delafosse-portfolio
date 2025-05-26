@@ -76,11 +76,11 @@ const Model: React.FC<ModelProps> = ({
             "YXZ"
           );
           let finalYRotation = euler.y;
-          if (path.endsWith("/3Dzebre.glb")) {
+          if (path.endsWith("/models/camera.glb")) {
             // No correction
-          } else if (path.endsWith("/3Dchably.glb")) {
+          } else if (path.endsWith("/models/3Dchably.glb")) {
             finalYRotation += (2 * Math.PI) / 3;
-          } else if (path.endsWith("/5xt.glb")) {
+          } else if (path.endsWith("/models/5xt.glb")) {
             finalYRotation += (2 * Math.PI) / 3;
           }
           model.rotation.y = finalYRotation;
