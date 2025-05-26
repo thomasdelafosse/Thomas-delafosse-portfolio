@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useMemo } from "react";
 
 interface FloatingPlanetsProps {
@@ -78,11 +79,13 @@ const FloatingPlanets: React.FC<FloatingPlanetsProps> = ({
   return (
     <>
       {PLANET_IMAGE_PATHS.map((path, index) => (
-        <img
+        <Image
           key={`planet-${index}`}
           src={path}
           alt={`Planet ${index + 1}`}
           style={planetImageStyles[index]}
+          width={100}
+          height={100}
         />
       ))}
     </>

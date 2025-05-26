@@ -15,6 +15,7 @@ const InteractiveGrid: React.FC<InteractiveGridProps> = ({
   const FADE_DURATION = 0.8;
 
   useEffect(() => {
+    const group = groupRef.current;
     const handlePointerMove = (event: PointerEvent) => {
       pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
       pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -58,8 +59,8 @@ const InteractiveGrid: React.FC<InteractiveGridProps> = ({
     gl.domElement.addEventListener("pointermove", handlePointerMove);
     return () => {
       gl.domElement.removeEventListener("pointermove", handlePointerMove);
-      if (groupRef.current) {
-        groupRef.current.children.forEach((plane) => {
+      if (group) {
+        group.children.forEach((plane) => {
           if (plane.userData.isInteractivePlane) {
             const material = (plane as THREE.Mesh)
               .material as THREE.MeshBasicMaterial;

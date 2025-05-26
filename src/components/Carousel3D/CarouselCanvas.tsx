@@ -13,7 +13,6 @@ import CameraUpdater from "./CameraUpdater";
 import { useFocusedModelInfo } from "@/hooks/useFocusedModelInfo";
 import useBodyOverflowOnFocus from "@/hooks/useBodyOverflowOnFocus";
 import useSceneControls from "@/hooks/useSceneControls";
-import styles from "./CarouselCanvas.module.css";
 
 const CarouselCanvas = ({
   models,

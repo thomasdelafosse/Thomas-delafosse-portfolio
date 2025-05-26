@@ -1,7 +1,8 @@
 import Carousel3D from "@/components/Carousel3D/CarouselCanvas";
+import { ModelData } from "@/types/types";
 
 interface MainSectionProps {
-  projectModels: Array<any>;
+  projectModels: ModelData[];
   setIsAnyModelFocused: (focused: boolean) => void;
 }
 

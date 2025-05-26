@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import localFont from "next/font/local";
 import PortraitWarning from "./PortraitWarning";
 import AboutMeButton from "./AboutMeButton";
@@ -40,7 +40,6 @@ const Footer = ({ isVisible }: FooterProps) => {
     show: showClose,
     leaving: closeLeaving,
     setLeaving: setCloseLeaving,
-    setShow: setShowClose,
   } = useAnimatedVisibility(closeActive, ANIMATION_DURATION);
 
   if (isMobilePortrait) {
