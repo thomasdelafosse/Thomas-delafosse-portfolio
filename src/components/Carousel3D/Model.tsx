@@ -77,7 +77,7 @@ const Model: React.FC<ModelProps> = ({
           );
           let finalYRotation = euler.y;
           if (path.endsWith("/models/camera.glb")) {
-            // No correction
+            finalYRotation += Math.PI;
           } else if (path.endsWith("/models/3Dchably.glb")) {
             finalYRotation += (2 * Math.PI) / 3;
           } else if (path.endsWith("/models/5xt.glb")) {
@@ -88,7 +88,11 @@ const Model: React.FC<ModelProps> = ({
           model.rotation.y = baseRotY;
         }
       } else {
-        model.rotation.y = baseRotY;
+        if (path.endsWith("/models/camera.glb")) {
+          model.rotation.y = baseRotY + Math.PI / 2;
+        } else {
+          model.rotation.y = baseRotY;
+        }
       }
     }
   });
