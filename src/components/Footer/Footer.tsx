@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import localFont from "next/font/local";
 import PortraitWarning from "./PortraitWarning";
 import AboutMeButton from "./AboutMeButton";
@@ -6,6 +6,7 @@ import CloseButton from "./CloseButton";
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
 import useMediaQueries from "../../hooks/useMediaQueries";
+import useAnimatedVisibility from "../../hooks/useAnimatedVisibility";
 
 const Birthstone = localFont({
   src: "../../../public/fonts/Birthstone-Regular.ttf",
@@ -18,57 +19,29 @@ interface FooterProps {
 
 const ANIMATION_DURATION = 500; // ms
 
-const Footer: React.FC<FooterProps> = ({ isVisible }) => {
+const Footer = ({ isVisible }: FooterProps) => {
   const { isMobilePortrait, isLandscape, isMobileOrTablet } = useMediaQueries();
   const [footerHidden, setFooterHidden] = useState(false);
 
-  // Animation states for buttons
-  const [showAboutMe, setShowAboutMe] = useState(false);
-  const [aboutMeVisible, setAboutMeVisible] = useState(false);
-  const [aboutMeLeaving, setAboutMeLeaving] = useState(false);
+  // AboutMe button animation logic
+  const aboutMeActive = footerHidden && isLandscape && isMobileOrTablet;
+  const {
+    show: showAboutMe,
+    visible: aboutMeVisible,
+    leaving: aboutMeLeaving,
+    setLeaving: setAboutMeLeaving,
+    setShow: setShowAboutMe,
+    setVisible: setAboutMeVisible,
+  } = useAnimatedVisibility(aboutMeActive, ANIMATION_DURATION);
 
-  const [showClose, setShowClose] = useState(true);
-  const [closeLeaving, setCloseLeaving] = useState(false);
-
-  const aboutMeTimeout = useRef<NodeJS.Timeout | null>(null);
-  const closeTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  // Handle About me button animation
-  useEffect(() => {
-    if (footerHidden && isLandscape && isMobileOrTablet) {
-      setShowAboutMe(true);
-      setTimeout(() => setAboutMeVisible(true), 10); // allow render before animating in
-    } else {
-      setAboutMeLeaving(true);
-      aboutMeTimeout.current = setTimeout(() => {
-        setAboutMeVisible(false);
-        setShowAboutMe(false);
-        setAboutMeLeaving(false);
-      }, ANIMATION_DURATION);
-    }
-    return () => {
-      if (aboutMeTimeout.current) clearTimeout(aboutMeTimeout.current);
-    };
-  }, [footerHidden, isLandscape, isMobileOrTablet]);
-
-  // Handle Close button animation
-  useEffect(() => {
-    if (!footerHidden && isLandscape && isMobileOrTablet) {
-      if (!showClose) setShowClose(true);
-      if (closeTimeout.current) clearTimeout(closeTimeout.current);
-      setTimeout(() => setCloseLeaving(false), 10);
-    } else if (showClose) {
-      setCloseLeaving(true);
-      if (closeTimeout.current) clearTimeout(closeTimeout.current);
-      closeTimeout.current = setTimeout(() => {
-        setShowClose(false);
-        setCloseLeaving(false);
-      }, ANIMATION_DURATION);
-    }
-    return () => {
-      if (closeTimeout.current) clearTimeout(closeTimeout.current);
-    };
-  }, [footerHidden, isLandscape, isMobileOrTablet]);
+  // Close button animation logic
+  const closeActive = !footerHidden && isLandscape && isMobileOrTablet;
+  const {
+    show: showClose,
+    leaving: closeLeaving,
+    setLeaving: setCloseLeaving,
+    setShow: setShowClose,
+  } = useAnimatedVisibility(closeActive, ANIMATION_DURATION);
 
   if (isMobilePortrait) {
     return <PortraitWarning />;
