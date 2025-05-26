@@ -6,7 +6,7 @@ import CloseButton from "./CloseButton";
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
 
-const RougeScript = localFont({
+const Birthstone = localFont({
   src: "../../../public/fonts/Birthstone-Regular.ttf",
   variable: "--font-Birthstone",
 });
@@ -163,7 +163,7 @@ const Footer: React.FC<FooterProps> = ({ isVisible }) => {
         )}
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-8">
           {/* About Me Section */}
-          <AboutMeSection headingClassName={RougeScript.className} />
+          <AboutMeSection headingClassName={Birthstone.className} />
 
           {/* Contact Me Section */}
           <ContactSection />
