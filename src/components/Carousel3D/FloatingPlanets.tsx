@@ -1,7 +1,7 @@
 import Image from "next/image";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
-interface FloatingPlanetsProps {
+interface FloatingPlanetsTypes {
   show: boolean;
   isLandscapeMobile: boolean;
   animationTime: number;
@@ -14,11 +14,11 @@ const PLANET_IMAGE_PATHS = [
   "/images/sweetSpot/planets4.webp",
 ];
 
-const FloatingPlanets: React.FC<FloatingPlanetsProps> = ({
+const FloatingPlanets = ({
   show,
   isLandscapeMobile,
   animationTime,
-}) => {
+}: FloatingPlanetsTypes) => {
   const floatAmplitude = 5;
   const floatSpeed = 1.2;
   const cornerImageBaseStyle = useMemo(

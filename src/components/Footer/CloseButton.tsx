@@ -1,9 +1,9 @@
-interface CloseButtonProps {
+interface CloseButtonTypes {
   leaving: boolean;
   onClick: () => void;
 }
 
-const CloseButton: React.FC<CloseButtonProps> = ({ leaving, onClick }) => (
+const CloseButton = ({ leaving, onClick }: CloseButtonTypes) => (
   <div
     style={{
       position: "absolute",

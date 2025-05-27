@@ -1,14 +1,10 @@
-interface AboutMeButtonProps {
+interface AboutMeButtonTypes {
   visible: boolean;
   leaving: boolean;
   onClick: () => void;
 }
 
-const AboutMeButton: React.FC<AboutMeButtonProps> = ({
-  visible,
-  leaving,
-  onClick,
-}) => (
+const AboutMeButton = ({ visible, leaving, onClick }: AboutMeButtonTypes) => (
   <div
     style={{
       position: "fixed",

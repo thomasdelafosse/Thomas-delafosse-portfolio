@@ -1,9 +1,12 @@
-import React, { useRef, useMemo } from "react";
+import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-// Starfield component
-const Starfield: React.FC<{ count?: number }> = ({ count = 5000 }) => {
+interface StarfieldTypes {
+  count?: number;
+}
+
+const Starfield = ({ count = 5000 }: StarfieldTypes) => {
   const pointsRef = useRef<THREE.Points>(null!);
 
   const [geometry, material] = useMemo(() => {

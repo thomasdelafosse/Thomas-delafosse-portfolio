@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const PortraitWarning: React.FC = () => (
+const PortraitWarning = () => (
   <div className="fixed inset-0 bg-gradient-to-b from-gray-900 to-black flex flex-col items-center justify-center text-white text-xl z-[9999] p-8 text-center">
     <div className="mb-6">
       <Image

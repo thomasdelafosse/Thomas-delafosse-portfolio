@@ -2,9 +2,9 @@ import React, { useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { ModelProps } from "@/types/types";
+import { ModelTypes } from "@/types/types";
 
-const Model: React.FC<ModelProps> = ({
+const Model = ({
   path,
   description,
   url,
@@ -16,7 +16,7 @@ const Model: React.FC<ModelProps> = ({
   numModels,
   carouselRotationY,
   onFocusChange,
-}) => {
+}: ModelTypes) => {
   const { scene } = useGLTF(path);
   const modelRef = useRef<THREE.Group>(null);
   const { camera } = useThree();

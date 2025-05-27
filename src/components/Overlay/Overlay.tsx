@@ -1,8 +1,8 @@
-interface OverlayProps {
+interface OverlayTypes {
   isVisible: boolean;
 }
 
-const Overlay = ({ isVisible }: OverlayProps) => (
+const Overlay = ({ isVisible }: OverlayTypes) => (
   <div
     className={`fixed inset-0 bg-black transition-opacity duration-300 ease-in-out pointer-events-none z-0 ${
       isVisible ? "opacity-10" : "opacity-0"

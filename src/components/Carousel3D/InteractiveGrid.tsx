@@ -1,13 +1,9 @@
-import React, { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { InteractiveGridProps } from "@/types/types";
+import { InteractiveGridTypes } from "@/types/types";
 
-const InteractiveGrid: React.FC<InteractiveGridProps> = ({
-  size,
-  divisions,
-  models,
-}) => {
+const InteractiveGrid = ({ size, divisions, models }: InteractiveGridTypes) => {
   const groupRef = useRef<THREE.Group>(null);
   const { scene, camera, gl } = useThree();
   const raycaster = useMemo(() => new THREE.Raycaster(), []);

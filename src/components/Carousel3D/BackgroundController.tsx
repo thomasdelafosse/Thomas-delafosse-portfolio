@@ -5,17 +5,17 @@ import Starfield from "./Starfield";
 import InteractiveGrid from "./InteractiveGrid";
 import { ModelData } from "@/types/types";
 
-interface Props {
+interface BackgroundControllerTypes {
   focusedPath: string | null | undefined;
   videoTexturePath: string;
   models: ModelData[];
 }
 
-const BackgroundController: React.FC<Props> = ({
+const BackgroundController = ({
   focusedPath,
   videoTexturePath,
   models,
-}) => {
+}: BackgroundControllerTypes) => {
   const { scene } = useThree();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoTextureRef = useRef<THREE.VideoTexture | null>(null);

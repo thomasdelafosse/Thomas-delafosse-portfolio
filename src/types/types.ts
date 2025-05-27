@@ -6,13 +6,13 @@ export interface ModelData {
   url: string;
 }
 
-export interface InteractiveGridProps {
+export interface InteractiveGridTypes {
   size: number;
   divisions: number;
   models: ModelData[];
 }
 
-export interface ModelProps extends ModelData {
+export interface ModelTypes extends ModelData {
   position: [number, number, number];
   rotation?: [number, number, number];
   scale: number;
@@ -26,7 +26,7 @@ export interface ModelProps extends ModelData {
   }) => void;
 }
 
-export interface CarouselSceneProps {
+export interface CarouselSceneTypes {
   models: ModelData[];
   onFocusChange: (focusData: {
     description: string | null;
@@ -34,7 +34,8 @@ export interface CarouselSceneProps {
   }) => void;
 }
 
-export interface CarouselProps {
+export interface CarouselTypes {
   models: ModelData[];
   onModelFocusStatusChange?: (isFocused: boolean) => void;
+  onModelProgress?: (progress: number) => void;
 }

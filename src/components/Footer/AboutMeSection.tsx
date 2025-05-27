@@ -1,8 +1,8 @@
-interface AboutMeSectionProps {
+interface AboutMeSectionTypes {
   headingClassName?: string;
 }
 
-const AboutMeSection = ({ headingClassName }: AboutMeSectionProps) => (
+const AboutMeSection = ({ headingClassName = "" }: AboutMeSectionTypes) => (
   <div className="md:w-1/2">
     <h3 className={`text-3xl font-bold mb-2 ${headingClassName ?? ""}`}>
       Thomas Delafosse
