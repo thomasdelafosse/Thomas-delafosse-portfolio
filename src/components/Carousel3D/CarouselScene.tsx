@@ -89,8 +89,12 @@ const CarouselScene = ({ models = [], onFocusChange }: CarouselSceneTypes) => {
           currentModelInitialZ = 0;
         }
         const finalX = currentModelInitialX - sceneCenter.x;
-        const finalY = modelYOffset - sceneCenter.y;
+        let finalY = modelYOffset - sceneCenter.y;
         const finalZ = currentModelInitialZ - sceneCenter.z;
+
+        if (model.path.endsWith("/models/camera.glb")) {
+          finalY -= 0.2;
+        }
 
         let currentModelScale = modelScale;
         if (model.path.endsWith("/models/camera.glb")) {
