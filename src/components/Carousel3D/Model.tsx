@@ -1,8 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { ModelTypes } from "@/types/types";
+import { useModelTexture } from "@/hooks/useModelTexture";
 
 const Model = ({
   path,
@@ -23,6 +24,8 @@ const Model = ({
   const wasInFocusRef = useRef<boolean | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const baseAngleInCarousel = (modelIndex / numModels) * Math.PI * 2;
+
+  useModelTexture({ modelPath: path, scene: scene });
 
   useFrame(() => {
     if (modelRef.current) {
