@@ -13,13 +13,14 @@ const Birthstone = localFont({
   variable: "--font-Birthstone",
 });
 
-interface FooterProps {
+interface FooterTypes {
   isVisible: boolean;
+  style?: React.CSSProperties;
 }
 
 const ANIMATION_DURATION = 500; // ms
 
-const Footer = ({ isVisible }: FooterProps) => {
+const Footer = ({ isVisible, style }: FooterTypes) => {
   const { isMobilePortrait, isLandscape, isMobileOrTablet } = useMediaQueries();
   const [footerHidden, setFooterHidden] = useState(false);
 
@@ -70,6 +71,7 @@ const Footer = ({ isVisible }: FooterProps) => {
       className={`fixed bottom-0 left-0 w-full bg-transparent transition-transform duration-500 ease-in-out z-50 ${
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}
+      style={style}
     >
       <div className="bg-[#2d2d2d] rounded-2xl shadow-lg p-4 text-white w-full mx-auto text-left relative">
         {showClose && isLandscape && isMobileOrTablet && !footerHidden && (

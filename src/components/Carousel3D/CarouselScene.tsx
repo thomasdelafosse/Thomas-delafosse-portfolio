@@ -3,12 +3,9 @@ import { useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import * as THREE from "three";
 import Model from "./Model";
-import { CarouselSceneProps } from "@/types/types";
+import { CarouselSceneTypes } from "@/types/types";
 
-const CarouselScene: React.FC<CarouselSceneProps> = ({
-  models = [],
-  onFocusChange,
-}) => {
+const CarouselScene = ({ models = [], onFocusChange }: CarouselSceneTypes) => {
   const groupRef = useRef<THREE.Group>(null);
   const { gl } = useThree();
   const [currentYRotation, setCurrentYRotation] = useState(0.0);

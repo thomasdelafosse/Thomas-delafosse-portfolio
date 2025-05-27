@@ -1,11 +1,11 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, useProgress } from "@react-three/drei";
 import { Leva } from "leva";
 import * as THREE from "three";
 import CarouselScene from "./CarouselScene";
 import BackgroundController from "./BackgroundController";
-import { CarouselProps } from "@/types/types";
+import { CarouselTypes } from "@/types/types";
 import useMediaQueries from "@/hooks/useMediaQueries";
 import FloatingPlanets from "./FloatingPlanets";
 import useFloatingAnimation from "@/hooks/useFloatingAnimation";
@@ -17,7 +17,8 @@ import useSceneControls from "@/hooks/useSceneControls";
 const CarouselCanvas = ({
   models,
   onModelFocusStatusChange,
-}: CarouselProps) => {
+  onModelProgress,
+}: CarouselTypes) => {
   const { isLandscape, isMobileOrTablet } = useMediaQueries();
   const isLandscapeMobile = isLandscape && isMobileOrTablet;
   const animationTime = useFloatingAnimation(1.2);
@@ -33,6 +34,15 @@ const CarouselCanvas = ({
     onModelFocusStatusChange
   );
   useBodyOverflowOnFocus(isLandscapeMobile, focusedModelInfo);
+
+  const { progress } = useProgress();
+
+  useEffect(() => {
+    if (onModelProgress) {
+      onModelProgress(progress);
+      console.log(`CarouselCanvas: Loading progress: ${progress}%`);
+    }
+  }, [progress, onModelProgress]);
 
   const showCornerPlanets =
     !!focusedModelInfo?.path?.endsWith("/models/5xt.glb");
@@ -83,7 +93,7 @@ const CarouselCanvas = ({
               : "opacity-0 pointer-events-none"
           }
         `}
-        style={{ transform: "translateY(-50%)", fontFamily: "" }}
+        style={{ transform: "translateY(-50%)" }}
       >
         {focusedModelInfo?.description || ""}
       </div>

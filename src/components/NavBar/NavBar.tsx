@@ -1,7 +1,11 @@
 import Image from "next/image";
 
-const NavBar = () => (
-  <nav className="relative w-full py-4 z-30">
+interface NavBarTypes {
+  style?: React.CSSProperties;
+}
+
+const NavBar = ({ style }: NavBarTypes) => (
+  <nav className="relative w-full py-4 z-30" style={style}>
     <div className="relative pl-6 pt-2">
       <Image
         src="/images/logoBlanc.png"
