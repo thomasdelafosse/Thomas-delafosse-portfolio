@@ -2,7 +2,6 @@ import { Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useProgress, Environment } from "@react-three/drei";
 import { Leva } from "leva";
-import * as THREE from "three";
 import CarouselScene from "./CarouselScene";
 import BackgroundController from "./BackgroundController";
 import { CarouselTypes } from "@/types/types";
@@ -22,13 +21,8 @@ const CarouselCanvas = ({
   const { isLandscape, isMobileOrTablet } = useMediaQueries();
   const isLandscapeMobile = isLandscape && isMobileOrTablet;
   const animationTime = useFloatingAnimation(1.2);
-  const {
-    ambientLightIntensity,
-    pointLightIntensity,
-    pointLightPosition,
-    cameraFov,
-    cameraPosition,
-  } = useSceneControls();
+  const { ambientLightIntensity, cameraFov, cameraPosition } =
+    useSceneControls();
 
   const { focusedModelInfo, handleFocusChange } = useFocusedModelInfo(
     onModelFocusStatusChange
