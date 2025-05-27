@@ -5,7 +5,7 @@ interface NavBarTypes {
 }
 
 const NavBar = ({ style }: NavBarTypes) => (
-  <nav className="relative w-full py-4 z-30" style={style}>
+  <nav className="relative w-full py-4 " style={style}>
     <div className="relative pl-6 pt-2">
       <Image
         src="/images/logoBlanc.png"

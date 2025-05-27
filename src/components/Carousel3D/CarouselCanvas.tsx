@@ -1,6 +1,6 @@
 import { Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useProgress } from "@react-three/drei";
+import { OrbitControls, useProgress, Environment } from "@react-three/drei";
 import { Leva } from "leva";
 import * as THREE from "three";
 import CarouselScene from "./CarouselScene";
@@ -57,14 +57,24 @@ const CarouselCanvas = ({
         left: 0,
       }}
     >
-      <Leva hidden={true} />
+      <Leva
+        hidden={true}
+        collapsed={true}
+        theme={{
+          sizes: {
+            rootWidth: "450px",
+            rowHeight: "30px",
+          },
+          fontSizes: {
+            root: "13px",
+          },
+        }}
+      />
+
       <Canvas camera={{ position: cameraPosition, fov: cameraFov }}>
         <CameraUpdater />
         <ambientLight intensity={ambientLightIntensity} />
-        <pointLight
-          position={new THREE.Vector3(...pointLightPosition)}
-          intensity={pointLightIntensity}
-        />
+
         <BackgroundController
           focusedPath={focusedModelInfo?.path}
           videoTexturePath="/images/mathieuLg/texture_noir.mp4"
@@ -79,6 +89,7 @@ const CarouselCanvas = ({
         <Suspense fallback={null}>
           <CarouselScene models={models} onFocusChange={handleFocusChange} />
         </Suspense>
+        <Environment preset="sunset" />
       </Canvas>
       <div
         className={`absolute z-10 text-left bg-black/70 text-white rounded-[10px] shadow-lg whitespace-pre-line overflow-y-auto transition-all duration-500 ease-in-out font-medium text-3xl
