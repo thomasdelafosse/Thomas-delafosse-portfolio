@@ -119,7 +119,6 @@ const BackgroundController = ({
   }, [focusedPath, scene, videoTexturePath, videoTexturePathChably]);
 
   const isCameraFocused = focusedPath?.endsWith("/models/camera.glb");
-  const isChablyFocused = focusedPath?.endsWith("/models/3Dchably.glb");
 
   return (
     <>

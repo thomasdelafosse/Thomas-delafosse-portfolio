@@ -25,8 +25,10 @@ const CarouselCanvas = ({
   const { ambientLightIntensity, cameraFov, cameraPosition } =
     useSceneControls();
 
-  const { focusedModelInfo, handleFocusChange, currentIndex } =
-    useFocusedModelInfo(models, onModelFocusStatusChange);
+  const { focusedModelInfo, handleFocusChange } = useFocusedModelInfo(
+    models,
+    onModelFocusStatusChange
+  );
   useBodyOverflowOnFocus(isLandscapeMobile, focusedModelInfo);
 
   const { progress } = useProgress();
