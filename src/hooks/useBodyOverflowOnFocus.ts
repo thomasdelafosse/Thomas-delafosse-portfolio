@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { FocusData } from "./useFocusedModelInfo";
+import { FocusData } from "@/types/types";
 
 export default function useBodyOverflowOnFocus(
   isLandscapeMobile: boolean,

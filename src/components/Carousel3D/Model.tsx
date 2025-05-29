@@ -27,7 +27,7 @@ const Model = ({
 
   useModelTexture({ modelPath: path, scene: scene });
 
-  useFrame(() => {
+  useFrame((state, delta) => {
     if (modelRef.current) {
       const model = modelRef.current;
       const baseRotX = rotation && rotation.length === 3 ? rotation[0] : 0;
@@ -50,20 +50,24 @@ const Model = ({
       model.rotation.z = baseRotZ;
       const isInFocus =
         Math.abs(angleDifferenceFromFront) < FOCUS_THRESHOLD_ANGLE;
+
       if (wasInFocusRef.current !== isInFocus) {
         if (isInFocus) {
-          onFocusChange({ description: description, path: path });
-        } else {
-          onFocusChange({ description: null, path: null });
+          onFocusChange({ description: description, path: path }, modelIndex);
         }
         wasInFocusRef.current = isInFocus;
       }
+
+      const animationSpeed = 6; // For out-of-focus animation
+      const focusAnimationSpeed = 5; // For in-focus animation
+
       if (isInFocus) {
         const lookAtMatrix = new THREE.Matrix4();
         lookAtMatrix.lookAt(modelWorldPosition, camera.position, model.up);
         const targetWorldQuaternion =
           new THREE.Quaternion().setFromRotationMatrix(lookAtMatrix);
         const parentWorldQuaternion = new THREE.Quaternion();
+
         if (model.parent) {
           model.parent.matrixWorld.decompose(
             new THREE.Vector3(),
@@ -78,24 +82,75 @@ const Model = ({
             targetLocalQuaternion,
             "YXZ"
           );
-          let finalYRotation = euler.y;
+          let targetYRotationInFocus = euler.y;
           if (path.endsWith("/models/camera.glb")) {
-            finalYRotation += Math.PI;
+            targetYRotationInFocus += Math.PI;
           } else if (path.endsWith("/models/3Dchably.glb")) {
-            finalYRotation += (2 * Math.PI) / 3;
+            targetYRotationInFocus += (1.9 * Math.PI) / 3.5;
           } else if (path.endsWith("/models/5xt.glb")) {
-            finalYRotation += (2 * Math.PI) / 3;
+            targetYRotationInFocus += Math.PI; // Simplified from (3.5 * Math.PI) / 3.5
           }
-          model.rotation.y = finalYRotation;
+
+          const currentModelYRotationInFocus = model.rotation.y;
+          let adjustedTargetYRotationInFocus = targetYRotationInFocus;
+          const diffInFocus =
+            targetYRotationInFocus - currentModelYRotationInFocus;
+
+          if (diffInFocus > Math.PI) {
+            adjustedTargetYRotationInFocus =
+              targetYRotationInFocus - 2 * Math.PI;
+          } else if (diffInFocus < -Math.PI) {
+            adjustedTargetYRotationInFocus =
+              targetYRotationInFocus + 2 * Math.PI;
+          }
+
+          model.rotation.y = THREE.MathUtils.lerp(
+            currentModelYRotationInFocus,
+            adjustedTargetYRotationInFocus,
+            focusAnimationSpeed * delta
+          );
         } else {
-          model.rotation.y = baseRotY;
+          // Fallback if no parent, lerp towards base Y rotation smoothly
+          const currentModelYRotationFallback = model.rotation.y;
+          let adjustedBaseRotY = baseRotY;
+          const diffFallback = baseRotY - currentModelYRotationFallback;
+
+          if (diffFallback > Math.PI) {
+            adjustedBaseRotY = baseRotY - 2 * Math.PI;
+          } else if (diffFallback < -Math.PI) {
+            adjustedBaseRotY = baseRotY + 2 * Math.PI;
+          }
+          model.rotation.y = THREE.MathUtils.lerp(
+            currentModelYRotationFallback,
+            adjustedBaseRotY,
+            focusAnimationSpeed * delta
+          );
         }
       } else {
+        // Out-of-focus animation remains the same
+        let targetRotationY = baseRotY;
         if (path.endsWith("/models/camera.glb")) {
-          model.rotation.y = baseRotY + Math.PI / 2;
-        } else {
-          model.rotation.y = baseRotY;
+          targetRotationY = baseRotY + Math.PI / 2;
+        } else if (path.endsWith("/models/5xt.glb")) {
+          targetRotationY = baseRotY + Math.PI / 2;
         }
+
+        const currentModelYRotationOutOfFocus = model.rotation.y;
+        let adjustedTargetRotationY = targetRotationY;
+        const diffOutOfFocus =
+          targetRotationY - currentModelYRotationOutOfFocus;
+
+        if (diffOutOfFocus > Math.PI) {
+          adjustedTargetRotationY = targetRotationY - 2 * Math.PI;
+        } else if (diffOutOfFocus < -Math.PI) {
+          adjustedTargetRotationY = targetRotationY + 2 * Math.PI;
+        }
+
+        model.rotation.y = THREE.MathUtils.lerp(
+          currentModelYRotationOutOfFocus,
+          adjustedTargetRotationY,
+          animationSpeed * delta
+        );
       }
     }
   });

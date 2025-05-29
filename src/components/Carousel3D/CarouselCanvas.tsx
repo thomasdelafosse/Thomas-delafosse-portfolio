@@ -2,6 +2,7 @@ import { Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useProgress, Environment } from "@react-three/drei";
 import { Leva } from "leva";
+import Link from "next/link";
 import CarouselScene from "./CarouselScene";
 import BackgroundController from "./BackgroundController";
 import { CarouselTypes } from "@/types/types";
@@ -24,9 +25,8 @@ const CarouselCanvas = ({
   const { ambientLightIntensity, cameraFov, cameraPosition } =
     useSceneControls();
 
-  const { focusedModelInfo, handleFocusChange } = useFocusedModelInfo(
-    onModelFocusStatusChange
-  );
+  const { focusedModelInfo, handleFocusChange, currentIndex } =
+    useFocusedModelInfo(models, onModelFocusStatusChange);
   useBodyOverflowOnFocus(isLandscapeMobile, focusedModelInfo);
 
   const { progress } = useProgress();
@@ -34,12 +34,42 @@ const CarouselCanvas = ({
   useEffect(() => {
     if (onModelProgress) {
       onModelProgress(progress);
-      console.log(`CarouselCanvas: Loading progress: ${progress}%`);
     }
   }, [progress, onModelProgress]);
 
   const showCornerPlanets =
     !!focusedModelInfo?.path?.endsWith("/models/5xt.glb");
+
+  let descriptionContent;
+  const descriptionText = focusedModelInfo?.description || "";
+
+  if (descriptionText) {
+    const linkRegex =
+      /([\s\S]*?)<Link href='([^']*)' target='_blank' rel='noopener noreferrer'>([^<]*)<\/Link>([\s\S]*)/;
+    const match = descriptionText.match(linkRegex);
+
+    if (match) {
+      const [, textBefore, href, linkText, textAfter] = match;
+      descriptionContent = (
+        <>
+          {textBefore}
+          <Link
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-slate-400"
+          >
+            {linkText}
+          </Link>
+          {textAfter}
+        </>
+      );
+    } else {
+      descriptionContent = descriptionText;
+    }
+  } else {
+    descriptionContent = "";
+  }
 
   return (
     <div
@@ -71,7 +101,8 @@ const CarouselCanvas = ({
 
         <BackgroundController
           focusedPath={focusedModelInfo?.path}
-          videoTexturePath="/images/mathieuLg/texture_noir.mp4"
+          videoTexturePath="/images/mathieuLg/texture_noir1.mp4"
+          videoTexturePathChably="/images/maisonMine/texture_beige.mp4"
           models={models}
         />
         <OrbitControls
@@ -100,7 +131,7 @@ const CarouselCanvas = ({
         `}
         style={{ transform: "translateY(-50%)" }}
       >
-        {focusedModelInfo?.description || ""}
+        {descriptionContent}
       </div>
       <FloatingPlanets
         show={showCornerPlanets}

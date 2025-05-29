@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useThree } from "@react-three/fiber";
+import { useThree, useFrame } from "@react-three/fiber";
 import { useControls } from "leva";
 import * as THREE from "three";
 import Model from "./Model";
@@ -24,6 +24,7 @@ const CarouselScene = ({ models = [], onFocusChange }: CarouselSceneTypes) => {
       },
     });
   const DRAG_SENSITIVITY = 0.0025;
+  const AUTO_ROTATE_SPEED = 0.1; // Radians per second
   const rawModelPositions = models.map((model, index) => {
     const angle = (index / models.length) * Math.PI * 2;
     let x = Math.cos(angle) * carouselRadius;
@@ -77,6 +78,16 @@ const CarouselScene = ({ models = [], onFocusChange }: CarouselSceneTypes) => {
       domElement.removeEventListener("pointerleave", handlePointerUpOrLeave);
     };
   }, [gl, setCurrentYRotation, DRAG_SENSITIVITY]);
+
+  useFrame((state, delta) => {
+    if (groupRef.current && !dragStateRef.current.isDragging) {
+      const newRotation =
+        groupRef.current.rotation.y + AUTO_ROTATE_SPEED * delta;
+      groupRef.current.rotation.y = newRotation;
+      setCurrentYRotation(newRotation);
+    }
+  });
+
   return (
     <group ref={groupRef}>
       {models.map((model, index) => {
@@ -99,6 +110,10 @@ const CarouselScene = ({ models = [], onFocusChange }: CarouselSceneTypes) => {
         let currentModelScale = modelScale;
         if (model.path.endsWith("/models/camera.glb")) {
           currentModelScale = modelScale * 5;
+        } else if (model.path.endsWith("/models/5xt.glb")) {
+          currentModelScale = modelScale * 0.4;
+        } else if (model.path.endsWith("/models/3Dchably.glb")) {
+          currentModelScale = modelScale * 1;
         }
 
         return (

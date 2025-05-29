@@ -6,6 +6,12 @@ export interface ModelData {
   url: string;
 }
 
+// Added FocusData back for use in useFocusedModelInfo state
+export interface FocusData {
+  description: string | null;
+  path: string | null; // Path can be null initially or if no models
+}
+
 export interface InteractiveGridTypes {
   size: number;
   divisions: number;
@@ -20,18 +26,24 @@ export interface ModelTypes extends ModelData {
   modelIndex: number;
   numModels: number;
   carouselRotationY: number;
-  onFocusChange: (focusData: {
-    description: string | null;
-    path: string | null;
-  }) => void;
+  onFocusChange: (
+    focusData: {
+      description: string | null;
+      path: string;
+    },
+    modelIndex: number
+  ) => void;
 }
 
 export interface CarouselSceneTypes {
   models: ModelData[];
-  onFocusChange: (focusData: {
-    description: string | null;
-    path: string | null;
-  }) => void;
+  onFocusChange: (
+    focusData: {
+      description: string | null;
+      path: string;
+    },
+    modelIndex: number
+  ) => void;
 }
 
 export interface CarouselTypes {
