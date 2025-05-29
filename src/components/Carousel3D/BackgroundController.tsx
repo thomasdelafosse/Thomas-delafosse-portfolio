@@ -8,12 +8,14 @@ import { ModelData } from "@/types/types";
 interface BackgroundControllerTypes {
   focusedPath: string | null | undefined;
   videoTexturePath: string;
+  videoTexturePathChably: string;
   models: ModelData[];
 }
 
 const BackgroundController = ({
   focusedPath,
   videoTexturePath,
+  videoTexturePathChably,
   models,
 }: BackgroundControllerTypes) => {
   const { scene } = useThree();
@@ -32,42 +34,17 @@ const BackgroundController = ({
 
   useEffect(() => {
     const is5xtFocused = focusedPath?.endsWith("/models/5xt.glb");
-    const isZebreFocused = focusedPath?.endsWith("/models/camera.glb");
-    if (isZebreFocused) {
-      if (!videoRef.current) {
-        const video = document.createElement("video");
-        video.src = videoTexturePath;
-        video.crossOrigin = "anonymous";
-        video.loop = true;
-        video.muted = true;
-        video.playsInline = true;
-        video.autoplay = true;
-        video.play().catch(() => setNeedsUserInteraction(true));
-        videoRef.current = video;
-      }
-      if (videoRef.current && !videoTextureRef.current) {
-        const texture = new THREE.VideoTexture(videoRef.current);
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.format = THREE.RGBFormat;
-        videoTextureRef.current = texture;
-        scene.background = texture;
-      }
-    } else if (is5xtFocused) {
-      scene.background = new THREE.Color("black");
-      if (videoTextureRef.current) {
-        videoTextureRef.current.dispose();
-        videoTextureRef.current = null;
-      }
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.src = "";
-        videoRef.current.load();
-        videoRef.current = null;
-      }
-      setNeedsUserInteraction(false);
-    } else {
-      scene.background = null;
+    const isCameraFocused = focusedPath?.endsWith("/models/camera.glb");
+    const isChablyFocused = focusedPath?.endsWith("/models/3Dchably.glb");
+
+    let targetVideoSrc: string | null = null;
+    if (isChablyFocused) {
+      targetVideoSrc = videoTexturePathChably;
+    } else if (isCameraFocused) {
+      targetVideoSrc = videoTexturePath;
+    }
+
+    if (videoRef.current?.src !== targetVideoSrc) {
       if (videoTextureRef.current) {
         videoTextureRef.current.dispose();
         videoTextureRef.current = null;
@@ -80,6 +57,52 @@ const BackgroundController = ({
       }
       setNeedsUserInteraction(false);
     }
+
+    if (targetVideoSrc) {
+      if (!videoRef.current) {
+        const video = document.createElement("video");
+        video.src = targetVideoSrc;
+        video.crossOrigin = "anonymous";
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.autoplay = true;
+        videoRef.current = video;
+
+        video
+          .play()
+          .then(() => setNeedsUserInteraction(false))
+          .catch(() => {
+            setNeedsUserInteraction(true);
+          });
+
+        const texture = new THREE.VideoTexture(videoRef.current);
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.format = THREE.RGBFormat;
+        videoTextureRef.current = texture;
+      }
+
+      if (videoTextureRef.current) {
+        scene.background = videoTextureRef.current;
+      }
+
+      if (
+        videoRef.current &&
+        !videoRef.current.paused &&
+        !videoRef.current.error
+      ) {
+        setNeedsUserInteraction(false);
+      }
+    } else {
+      if (is5xtFocused) {
+        scene.background = new THREE.Color("black");
+      } else {
+        scene.background = null;
+      }
+      setNeedsUserInteraction(false);
+    }
+
     return () => {
       if (videoTextureRef.current) {
         videoTextureRef.current.dispose();
@@ -93,14 +116,15 @@ const BackgroundController = ({
       }
       setNeedsUserInteraction(false);
     };
-  }, [focusedPath, scene, videoTexturePath]);
+  }, [focusedPath, scene, videoTexturePath, videoTexturePathChably]);
 
-  const isZebreFocused = focusedPath?.endsWith("/models/camera.glb");
+  const isCameraFocused = focusedPath?.endsWith("/models/camera.glb");
+  const isChablyFocused = focusedPath?.endsWith("/models/3Dchably.glb");
 
   return (
     <>
       {focusedPath?.endsWith("/models/5xt.glb") && <Starfield />}
-      {isZebreFocused && (
+      {isCameraFocused && (
         <InteractiveGrid size={20} divisions={30} models={models} />
       )}
       {needsUserInteraction && (
