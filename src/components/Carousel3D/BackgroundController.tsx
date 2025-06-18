@@ -4,6 +4,7 @@ import * as THREE from "three";
 import Starfield from "./Starfield";
 import InteractiveGrid from "./InteractiveGrid";
 import { ModelData } from "@/types/types";
+import { Html } from "@react-three/drei";
 
 interface BackgroundControllerTypes {
   focusedPath: string | null | undefined;
@@ -127,40 +128,26 @@ const BackgroundController = ({
         <InteractiveGrid size={20} divisions={30} models={models} />
       )}
       {needsUserInteraction && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "rgba(0,0,0,0.7)",
-            zIndex: 1000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "1.5rem",
-            flexDirection: "column",
-          }}
-        >
-          <button
-            style={{
-              padding: "1em 2em",
-              fontSize: "1.2rem",
-              borderRadius: "8px",
-              border: "none",
-              background: "#222",
-              color: "#fff",
-              cursor: "pointer",
-              marginBottom: "1em",
-            }}
+        <Html fullscreen>
+          <div
             onClick={handlePlayVideo}
+            style={{
+              width: "100vw",
+              height: "100vh",
+              background: "rgba(0,0,0,0.7)",
+              zIndex: 1000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "1.5rem",
+              flexDirection: "column",
+              cursor: "pointer",
+            }}
           >
-            ▶️ Activer la vidéo de fond
-          </button>
-          <span>Appuyez pour activer la vidéo de fond</span>
-        </div>
+            <span>Appuyez pour activer la vidéo de fond</span>
+          </div>
+        </Html>
       )}
     </>
   );
