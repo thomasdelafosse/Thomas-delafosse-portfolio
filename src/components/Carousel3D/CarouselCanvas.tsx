@@ -1,8 +1,9 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useProgress, Environment } from "@react-three/drei";
 import { Leva } from "leva";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import CarouselScene from "./CarouselScene";
 import BackgroundController from "./BackgroundController";
 import { CarouselTypes } from "@/types/types";
@@ -26,6 +27,11 @@ const CarouselCanvas = ({
   const { ambientLightIntensity, cameraFov, cameraPosition } =
     useSceneControls();
 
+  const { focusedModelInfo, handleFocusChange } = useFocusedModelInfo(
+    models,
+    onModelFocusStatusChange
+  );
+
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
   const sweetSpotImages = [
     "/images/sweetSpot/homepagePreviousVersionSP.png",
@@ -34,10 +40,6 @@ const CarouselCanvas = ({
     "/images/sweetSpot/SweetSpot-old-version pres.mp4",
   ];
 
-  const { focusedModelInfo, handleFocusChange } = useFocusedModelInfo(
-    models,
-    onModelFocusStatusChange
-  );
   useBodyOverflowOnFocus(isLandscapeMobile, focusedModelInfo);
 
   const { progress } = useProgress();
@@ -147,23 +149,27 @@ const CarouselCanvas = ({
         </Suspense>
         <Environment preset="sunset" />
       </Canvas>
-      <div
-        className={`absolute z-10 text-left bg-black/70 text-white rounded-[10px] shadow-lg whitespace-pre-line overflow-y-auto transition-all duration-500 ease-in-out font-medium text-3xl
-          ${
-            isLandscapeMobile
-              ? "left-[2%] top-[80%] p-[10px] text-[0.7rem] max-w-[40%] max-h-[80vh]"
-              : "left-[3%] top-[80%] p-[20px] text-[0.9rem] max-w-[70%] max-h-[70vh]"
-          }
-          ${
-            focusedModelInfo?.description
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          }
-        `}
-        style={{ transform: "translateY(-50%)" }}
-      >
-        {descriptionContent}
-      </div>
+      <AnimatePresence>
+        {focusedModelInfo?.description && (
+          <motion.div
+            key={focusedModelInfo.path}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className={`absolute z-10 text-left bg-black/70 text-white rounded-[10px] shadow-lg whitespace-pre-line overflow-y-auto font-medium text-3xl
+            ${
+              isLandscapeMobile
+                ? "left-[2%] top-[80%] p-[10px] text-[0.7rem] max-w-[40%] max-h-[80vh]"
+                : "left-[3%] top-[80%] p-[20px] text-[0.9rem] max-w-[70%] max-h-[70vh]"
+            }
+          `}
+            style={{ transform: "translateY(-50%)" }}
+          >
+            {descriptionContent}
+          </motion.div>
+        )}
+      </AnimatePresence>
       <FloatingPlanets
         show={showCornerPlanets}
         isLandscapeMobile={isLandscapeMobile}
