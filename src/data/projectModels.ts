@@ -2,7 +2,7 @@ const projectModels = [
   {
     path: "/models/5xt.glb",
     description:
-      "Sweet Spot Paris, FEB 2025 – MAR 2025\n <Link href='https://sweetspot.paris' target='_blank' rel='noopener noreferrer'>https://sweetspot.paris</Link> or click on the 3D model\n\n• Creation of a ticket office website with Next.js and TypeScript \n • Creation of an app with expo to scan tickets \n• Transactional email management with Resend\n• 3D replica of a Dolby Atmos studio with Three.js",
+      "Sweet Spot Paris, FEB 2025 – MAR 2025\n <Link href='https://sweetspot.paris' target='_blank' rel='noopener noreferrer'>https://sweetspot.paris</Link> or click on the 3D model\n\n Click here to discover the previous version\n\n • Creation of a ticket office website with Next.js and TypeScript \n • Creation of an app with expo to scan tickets \n• Transactional email management with Resend\n• 3D replica of a Dolby Atmos studio with Three.js",
     url: "https://sweetspot.paris",
   },
   {

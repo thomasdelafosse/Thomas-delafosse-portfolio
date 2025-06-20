@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useProgress, Environment } from "@react-three/drei";
 import { Leva } from "leva";
@@ -13,6 +13,7 @@ import CameraUpdater from "./CameraUpdater";
 import { useFocusedModelInfo } from "@/hooks/useFocusedModelInfo";
 import useBodyOverflowOnFocus from "@/hooks/useBodyOverflowOnFocus";
 import useSceneControls from "@/hooks/useSceneControls";
+import ImageCarousel from "../ImageCarousel/ImageCarousel";
 
 const CarouselCanvas = ({
   models,
@@ -24,6 +25,14 @@ const CarouselCanvas = ({
   const animationTime = useFloatingAnimation(1.2);
   const { ambientLightIntensity, cameraFov, cameraPosition } =
     useSceneControls();
+
+  const [isCarouselOpen, setIsCarouselOpen] = useState(false);
+  const sweetSpotImages = [
+    "/images/sweetSpot/homepagePreviousVersionSP.png",
+    "/images/sweetSpot/listeningPartiesSP.png",
+    "/images/sweetSpot/listeningPartiesSP1.png",
+    "/images/sweetSpot/SweetSpot-old-version pres.mp4",
+  ];
 
   const { focusedModelInfo, handleFocusChange } = useFocusedModelInfo(
     models,
@@ -44,30 +53,50 @@ const CarouselCanvas = ({
 
   let descriptionContent;
   const descriptionText = focusedModelInfo?.description || "";
+  const carouselTriggerText = "Click here to discover the previous version";
 
   if (descriptionText) {
+    const parts = descriptionText.split(carouselTriggerText);
     const linkRegex =
       /([\s\S]*?)<Link href='([^']*)' target='_blank' rel='noopener noreferrer'>([^<]*)<\/Link>([\s\S]*)/;
-    const match = descriptionText.match(linkRegex);
 
-    if (match) {
-      const [, textBefore, href, linkText, textAfter] = match;
+    const renderPart = (part: string) => {
+      const match = part.match(linkRegex);
+      if (match) {
+        const [, textBefore, href, linkText, textAfter] = match;
+        return (
+          <>
+            {textBefore}
+            <Link
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-slate-400"
+            >
+              {linkText}
+            </Link>
+            {textAfter}
+          </>
+        );
+      }
+      return part;
+    };
+
+    if (parts.length > 1 && showCornerPlanets) {
       descriptionContent = (
         <>
-          {textBefore}
-          <Link
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-slate-400"
+          {renderPart(parts[0])}
+          <button
+            onClick={() => setIsCarouselOpen(true)}
+            className="text-white hover:text-slate-400 hover:underline cursor-pointer"
           >
-            {linkText}
-          </Link>
-          {textAfter}
+            {carouselTriggerText}
+          </button>
+          {renderPart(parts[1])}
         </>
       );
     } else {
-      descriptionContent = descriptionText;
+      descriptionContent = renderPart(descriptionText);
     }
   } else {
     descriptionContent = "";
@@ -139,6 +168,11 @@ const CarouselCanvas = ({
         show={showCornerPlanets}
         isLandscapeMobile={isLandscapeMobile}
         animationTime={animationTime}
+      />
+      <ImageCarousel
+        isOpen={isCarouselOpen}
+        onClose={() => setIsCarouselOpen(false)}
+        images={sweetSpotImages}
       />
     </div>
   );
