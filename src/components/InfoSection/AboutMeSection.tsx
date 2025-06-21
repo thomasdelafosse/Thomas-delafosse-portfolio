@@ -3,7 +3,7 @@ interface AboutMeSectionTypes {
 }
 
 const AboutMeSection = ({ headingClassName = "" }: AboutMeSectionTypes) => (
-  <div className="md:w-1/2">
+  <div className="">
     <h3 className={`text-3xl font-bold mb-2 ${headingClassName ?? ""}`}>
       Thomas Delafosse
     </h3>

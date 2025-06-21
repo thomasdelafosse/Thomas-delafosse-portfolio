@@ -4,7 +4,7 @@ import MainSection from "@/components/MainSection/MainSection";
 import projectModelsData from "@/data/projectModels";
 import IntroLoader from "@/components/IntroLoader/IntroLoader";
 import InfoSection from "@/components/InfoSection/InfoSection";
-import { FaInfoCircle } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import useMediaQueries from "@/hooks/useMediaQueries";
 import PortraitWarning from "@/components/InfoSection/PortraitWarning";
@@ -67,13 +67,18 @@ export default function Home() {
           />
         </div>
         {!isLoading && !infoVisible && (
-          <button
+          <motion.button
             onClick={toggleMinimalInfo}
-            className="fixed top-4 right-4 z-50 p-2 bg-opacity-20 hover:bg-opacity-30 rounded-full text-white transition-colors"
+            className="fixed top-4 right-4 z-50 p-2 px-4 bg-black/70 rounded-[10px] shadow-lg text-white"
             aria-label="Show info"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2 }}
           >
-            <FaInfoCircle size={24} />
-          </button>
+            About me
+          </motion.button>
         )}
         {isLoading && modelLoadProgress < 100 && (
           <IntroLoader
@@ -81,10 +86,11 @@ export default function Home() {
             onLoaded={handleLoadingComplete}
           />
         )}
-        <InfoSection
-          isVisible={infoVisible}
-          onDiscoverProjects={handleDiscoverProjects}
-        />
+        <AnimatePresence>
+          {infoVisible && (
+            <InfoSection onDiscoverProjects={handleDiscoverProjects} />
+          )}
+        </AnimatePresence>
         <MainSection
           projectModels={projectModelsData}
           onModelProgress={handleModelProgressUpdate}

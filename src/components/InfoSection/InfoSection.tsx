@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
 
 interface InfoSectionTypes {
-  isVisible: boolean;
   onDiscoverProjects: () => void;
 }
 
-const InfoSection = ({ isVisible, onDiscoverProjects }: InfoSectionTypes) => {
+const InfoSection = ({ onDiscoverProjects }: InfoSectionTypes) => {
   const [hue1, setHue1] = useState(220);
   const [hue2, setHue2] = useState(230);
   const gradientAnimationId = useRef<number | null>(null);
@@ -18,26 +18,26 @@ const InfoSection = ({ isVisible, onDiscoverProjects }: InfoSectionTypes) => {
       setHue2((prevHue) => (prevHue + 0.3) % 360);
       gradientAnimationId.current = requestAnimationFrame(animateGradient);
     };
-    if (isVisible) {
-      gradientAnimationId.current = requestAnimationFrame(animateGradient);
-    }
+
+    gradientAnimationId.current = requestAnimationFrame(animateGradient);
+
     return () => {
       if (gradientAnimationId.current) {
         cancelAnimationFrame(gradientAnimationId.current);
       }
     };
-  }, [isVisible]);
-
-  if (!isVisible) {
-    return null;
-  }
+  }, []);
 
   const gradientBackground = `linear-gradient(45deg, hsl(${hue1}, 15%, 25%), hsl(${hue2}, 10%, 45%))`;
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
       style={{ background: gradientBackground }}
-      className="fixed inset-0 z-40 flex flex-col items-center justify-center p-6 md:p-8 text-white transition-opacity duration-300 ease-in-out"
+      className="fixed inset-0 z-40 flex flex-col items-center justify-center p-6 md:p-8 text-white"
     >
       <div className="w-full max-w-10xl flex flex-col items-center gap-8 p-10 md:p-12  rounded-xl shadow-2xl ">
         <div className="flex flex-col md:flex-row gap-10 md:gap-16 w-full justify-between">
@@ -54,7 +54,7 @@ const InfoSection = ({ isVisible, onDiscoverProjects }: InfoSectionTypes) => {
       >
         Discover my projects
       </button>
-    </div>
+    </motion.div>
   );
 };
 
