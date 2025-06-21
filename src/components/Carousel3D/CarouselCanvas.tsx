@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useProgress, Environment } from "@react-three/drei";
 import { Leva } from "leva";
