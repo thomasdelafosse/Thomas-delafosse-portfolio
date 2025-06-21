@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
-interface ImageCarouselProps {
+interface ImageCarouselType {
   images: string[];
   isOpen: boolean;
   onClose: () => void;
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({
+const ImageCarousel: React.FC<ImageCarouselType> = ({
   images,
   isOpen,
   onClose,
