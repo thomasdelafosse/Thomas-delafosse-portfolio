@@ -69,7 +69,7 @@ export default function Home() {
         {!isLoading && !infoVisible && (
           <motion.button
             onClick={toggleMinimalInfo}
-            className="fixed top-4 right-4 z-50 p-2 px-4 bg-black/70 rounded-[10px] shadow-lg text-white"
+            className="fixed top-4 right-4 z-50 p-2 px-4 bg-black/70 rounded-[10px] shadow-lg text-white cursor-pointer"
             aria-label="Show info"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
