@@ -2,7 +2,7 @@ import { FaGithub, FaEnvelope } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
 const ContactSection = () => (
-  <div className="flex flex-col gap-1 items-end justify-center mr-2 mt-10 lg:mt-0">
+  <div className="flex flex-col gap-4 md:items-start md:justify-center border-white border-l pt-0 mt-4 pl-6  ">
     <a
       href="https://github.com/thomasdelafosse"
       target="_blank"
@@ -10,7 +10,7 @@ const ContactSection = () => (
       aria-label="GitHub"
       className="text-white hover:text-gray-300 transition-colors flex items-center"
     >
-      github <FaGithub size={20} className="ml-1" />
+      <FaGithub size={20} className="mr-2" /> github.com/thomasdelafosse
     </a>
     <a
       href="https://x.com/ThomasDelafosse"
@@ -19,14 +19,14 @@ const ContactSection = () => (
       aria-label="x"
       className="text-white hover:text-gray-300 transition-colors flex items-center"
     >
-      @ThomasDelafosse <FaXTwitter size={20} className="ml-1" />
+      <FaXTwitter size={20} className="mr-2" /> @ThomasDelafosse
     </a>
     <a
       href="mailto:bonjour@thomasdelafosse.com"
       aria-label="Email"
       className="text-white hover:text-gray-300 transition-colors flex items-center"
     >
-      bonjour@thomasdelafosse.com <FaEnvelope size={20} className="ml-1" />
+      <FaEnvelope size={20} className="mr-2" /> bonjour@thomasdelafosse.com
     </a>
   </div>
 );
