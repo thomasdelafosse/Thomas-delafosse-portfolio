@@ -1,4 +1,4 @@
-import Carousel3D from "@/components/Carousel3D/CarouselCanvas";
+import Carousel3D from "@/components/carousel-3d/CarouselCanvas";
 import { ModelData } from "@/types/types";
 
 interface MainSectionTypes {
