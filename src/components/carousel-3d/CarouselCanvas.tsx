@@ -103,4 +103,6 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
   }
 );
 
+CarouselCanvas.displayName = "CarouselCanvas";
+
 export default CarouselCanvas;

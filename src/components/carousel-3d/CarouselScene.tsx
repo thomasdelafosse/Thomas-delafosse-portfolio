@@ -276,4 +276,6 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
   }
 );
 
+CarouselScene.displayName = "CarouselScene";
+
 export default CarouselScene;
