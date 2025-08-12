@@ -231,25 +231,29 @@ const MainSection = ({
         >
           {parsedDescription}
         </motion.div>
-        {/* Prev / Next controls anchored to the section edges */}
-        <button
-          onClick={() => {
-            carouselRef.current?.prev();
-          }}
-          className="absolute bottom-4 left-4 md:left-100 z-10 px-4 py-2  bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
-          aria-label="Previous project"
-        >
-          PREVIOUS
-        </button>
-        <button
-          onClick={() => {
-            carouselRef.current?.next();
-          }}
-          className="absolute bottom-4 right-4 md:right-104 z-10 px-4 py-2  bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
-          aria-label="Next project"
-        >
-          NEXT
-        </button>
+        {/* Prev / Next controls: full-width row so they stay left/right on all orientations */}
+        <div className="absolute bottom-2 left-0 right-0 z-10 px-2 sm:px-4 md:px-8 lg:px-104">
+          <div className="flex w-full items-center justify-between">
+            <button
+              onClick={() => {
+                carouselRef.current?.prev();
+              }}
+              className="px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
+              aria-label="Previous project"
+            >
+              PREVIOUS
+            </button>
+            <button
+              onClick={() => {
+                carouselRef.current?.next();
+              }}
+              className="px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
+              aria-label="Next project"
+            >
+              NEXT
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Image carousel for Sweet Spot project */}
