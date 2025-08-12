@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useThree } from "@react-three/fiber";
+import { useThree, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { getClampedDevicePixelRatio } from "./utils";
 import backgroundParticlesVertexShader from "./shaders/backgroundParticlesVertexShader.glsl";
@@ -68,6 +68,9 @@ export function BackgroundParticles({
     );
     geometry.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
     geometry.computeBoundingSphere();
+    // With frameloop="demand" on the hosting Canvas, ensure a frame is rendered
+    // after we update geometry attributes.
+    invalidate();
     return () => geometry.dispose();
   }, [geometry, positions, sizes]);
 
@@ -78,6 +81,8 @@ export function BackgroundParticles({
         materialRef.current.uniforms.uDevicePixelRatio.value =
           getClampedDevicePixelRatio(2);
       }
+      // Request a new frame so DPR changes become visible with frameloop="demand".
+      invalidate();
     };
     updateDpr();
     if (typeof window !== "undefined") {
@@ -111,6 +116,11 @@ export function BackgroundParticles({
       uMaxScale: { value: 3.2 },
     };
   }, [size.width, size.height, ortho.zoom]);
+
+  // Invalidate when uniforms change so the demand-based canvas renders an updated frame.
+  useEffect(() => {
+    invalidate();
+  }, [uniforms]);
 
   return (
     <points geometry={geometry} frustumCulled={false}>
