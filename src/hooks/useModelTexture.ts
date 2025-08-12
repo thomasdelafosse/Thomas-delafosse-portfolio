@@ -10,7 +10,7 @@ interface ModelTextureTypes {
 export const useModelTexture = ({ modelPath, scene }: ModelTextureTypes) => {
   const colorMap = useLoader(
     THREE.TextureLoader,
-    "/textures/camera/CANON_AT1_COL_1k.webp"
+    "/textures/CANON_AT1_COL_1k.webp"
   );
   const normalMap = useLoader(
     THREE.TextureLoader,
