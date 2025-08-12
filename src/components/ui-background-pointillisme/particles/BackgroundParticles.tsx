@@ -1,15 +1,30 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { getClampedDevicePixelRatio } from "./utils";
 import backgroundParticlesVertexShader from "./shaders/backgroundParticlesVertexShader.glsl";
 import backgroundParticlesFragmentShader from "./shaders/backgroundParticlesFragmentShader.glsl";
 
-export function BackgroundParticles() {
+type BackgroundParticlesProps = {
+  // Optionally reduce or override the number of particles
+  count?: number;
+  countScale?: number; // multiplier applied to the default count
+};
+
+export function BackgroundParticles({
+  count: countProp,
+  countScale = 1,
+}: BackgroundParticlesProps = {}) {
   const { size, camera } = useThree();
   const ortho = camera as THREE.OrthographicCamera;
 
-  const count = size.width < 1024 ? 10000 : 20055;
+  const defaultCount = size.width < 1024 ? 10000 : 20055;
+  const count = Math.max(
+    500,
+    Math.floor(
+      (typeof countProp === "number" ? countProp : defaultCount) * countScale
+    )
+  );
 
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
@@ -56,12 +71,20 @@ export function BackgroundParticles() {
     return () => geometry.dispose();
   }, [geometry, positions, sizes]);
 
-  useFrame(() => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.uDevicePixelRatio.value =
-        getClampedDevicePixelRatio(2);
+  // Update DPR only on mount and when the devicePixelRatio changes (rare)
+  useEffect(() => {
+    const updateDpr = () => {
+      if (materialRef.current) {
+        materialRef.current.uniforms.uDevicePixelRatio.value =
+          getClampedDevicePixelRatio(2);
+      }
+    };
+    updateDpr();
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", updateDpr);
+      return () => window.removeEventListener("resize", updateDpr);
     }
-  });
+  }, []);
 
   const uniforms = useMemo(() => {
     const halfW = size.width / ortho.zoom / 2;
