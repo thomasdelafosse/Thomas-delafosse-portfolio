@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
 import PointillismBackgroundMorphing from "@/components/ui-background-pointillisme/PointillismBackgroundMorphing";
+import BackgroundParticlesCanvas from "@/components/ui-background-pointillisme/BackgroundParticlesCanvas";
 
 interface InfoSectionTypes {
   onDiscoverProjects: () => void;
@@ -23,6 +24,9 @@ const InfoSection = ({ onDiscoverProjects }: InfoSectionTypes) => {
       className="fixed inset-0 z-40 flex flex-col items-center justify-center p-6 md:p-8 text-white cursor-pointer"
     >
       {/* Interactive pointillism shader background */}
+      {/* Background particles only, but keep enter effect separate */}
+      <BackgroundParticlesCanvas />
+      {/* Optional enter overlay */}
       <PointillismBackgroundMorphing onEnter={onDiscoverProjects} />
       {/* Foreground info card */}
       <div className="p-6 bg-black/70 relative z-10">
