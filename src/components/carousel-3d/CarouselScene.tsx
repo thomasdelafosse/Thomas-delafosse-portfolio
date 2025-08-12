@@ -269,3 +269,6 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
 );
 
 export default CarouselScene;
+
+// Help ESLint/React tooling with an explicit display name
+CarouselScene.displayName = "CarouselScene";

@@ -8,11 +8,9 @@ import { useModelTexture } from "@/hooks/useModelTexture";
 const Model = ({
   path,
   description,
-  url: _url,
   position,
   rotation,
   scale,
-  hoverScaleMultiplier: _hoverScaleMultiplier,
   modelIndex,
   numModels,
   carouselRotationRef,
@@ -27,7 +25,7 @@ const Model = ({
 
   useFrame(() => {
     if (modelRef.current) {
-      const model = modelRef.current;
+      // Accessing the ref is enough; local variable not needed
       const modelAbsoluteAngleInCarousel =
         baseAngleInCarousel + carouselRotationRef.current;
       const frontOfCarouselAngle = Math.PI / 2;

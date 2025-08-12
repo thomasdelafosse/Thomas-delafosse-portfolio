@@ -12,7 +12,6 @@ interface MainSectionTypes {
   onModelProgress?: (progress: number) => void;
   style?: React.CSSProperties;
 }
-("");
 const MainSection = ({
   projectModels,
   onModelProgress,

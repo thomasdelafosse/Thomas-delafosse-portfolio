@@ -121,3 +121,6 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
 );
 
 export default CarouselCanvas;
+
+// Help ESLint/React tooling with an explicit display name
+CarouselCanvas.displayName = "CarouselCanvas";
