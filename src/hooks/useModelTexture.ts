@@ -10,24 +10,33 @@ interface ModelTextureTypes {
 export const useModelTexture = ({ modelPath, scene }: ModelTextureTypes) => {
   const colorMap = useLoader(
     THREE.TextureLoader,
-    "/textures/CANON_AT1_COL_1k.png"
+    "/textures/camera/CANON_AT1_COL_1k.webp"
   );
   const normalMap = useLoader(
     THREE.TextureLoader,
-    "/textures/CANON_AT1_NRML_GL_1k.png"
+    "/textures/camera/CANON_AT1_NRML_GL_1k.webp"
   );
   const metallicMap = useLoader(
     THREE.TextureLoader,
-    "/textures/CANON_AT1_METL_1k.png"
+    "/textures/camera/CANON_AT1_METL_1k.webp"
   );
   const roughnessMap = useLoader(
     THREE.TextureLoader,
-    "/textures/CANON_AT1_ROUGH_1k.png"
+    "/textures/camera/CANON_AT1_ROUGH_1k.webp"
   );
-  const aoMap = useLoader(THREE.TextureLoader, "/textures/CANON_AT1_AO_1k.png");
+  const aoMap = useLoader(
+    THREE.TextureLoader,
+    "/textures/camera/CANON_AT1_AO_1k.webp"
+  );
   const maskMap = useLoader(
     THREE.TextureLoader,
-    "/textures/CANON_AT1_MASK_1k.png"
+    "/textures/camera/CANON_AT1_MASK_1k.webp"
+  );
+
+  // Baked texture for the Syva speaker model
+  const bakedSpeakerMap = useLoader(
+    THREE.TextureLoader,
+    "/textures/speaker/baked-speaker.webp"
   );
 
   useEffect(() => {
@@ -38,14 +47,27 @@ export const useModelTexture = ({ modelPath, scene }: ModelTextureTypes) => {
       roughnessMap,
       aoMap,
       maskMap,
+      bakedSpeakerMap,
     ];
     textures.forEach((texture) => {
       if (texture && texture.isTexture) {
         texture.flipY = false;
+        // Ensure correct color space only for albedo/baked maps
+        if (texture === colorMap || texture === bakedSpeakerMap) {
+          (texture as THREE.Texture).colorSpace = THREE.SRGBColorSpace;
+        }
         texture.needsUpdate = true;
       }
     });
-  }, [colorMap, normalMap, metallicMap, roughnessMap, aoMap, maskMap]);
+  }, [
+    colorMap,
+    normalMap,
+    metallicMap,
+    roughnessMap,
+    aoMap,
+    maskMap,
+    bakedSpeakerMap,
+  ]);
 
   useEffect(() => {
     if (modelPath.endsWith("/models/camera.glb") && scene) {
@@ -88,4 +110,23 @@ export const useModelTexture = ({ modelPath, scene }: ModelTextureTypes) => {
     aoMap,
     maskMap,
   ]);
+
+  // Apply baked texture to Syva speaker model
+  useEffect(() => {
+    if (modelPath.endsWith("/models/syva.glb") && scene) {
+      scene.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          const newMaterial = new THREE.MeshBasicMaterial({
+            map: bakedSpeakerMap,
+            toneMapped: false,
+          });
+          mesh.material = newMaterial;
+          if (mesh.material) {
+            (mesh.material as THREE.Material).needsUpdate = true;
+          }
+        }
+      });
+    }
+  }, [scene, modelPath, bakedSpeakerMap]);
 };
