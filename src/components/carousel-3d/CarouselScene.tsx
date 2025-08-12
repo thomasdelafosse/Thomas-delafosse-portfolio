@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   forwardRef,
+  useLayoutEffect,
 } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import { useControls } from "leva";
@@ -29,7 +30,6 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
       modelYOffset,
       levaHoverScaleMultiplier,
       carouselZOffset,
-      // Per-model overrides (for quick debugging in Leva)
       cameraYExtraOffset,
       cameraYawOffsetDeg,
       syvaYExtraOffset,
@@ -39,8 +39,7 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
     } = useControls("Carousel Settings", {
       carouselRadius: { value: 1, min: 1, max: 20, step: 0.5 },
       modelScale: { value: 0.7, min: 0.1, max: 5, step: 0.1 },
-      // Keep all models at the same vertical level as the camera (side view)
-      modelYOffset: { value: -0.4, min: -5, max: 5, step: 0.1 },
+      modelYOffset: { value: -0.3, min: -5, max: 5, step: 0.1 },
       levaHoverScaleMultiplier: {
         value: 1,
         min: 1,
@@ -55,38 +54,36 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
         step: 0.05,
         label: "Carousel Z Offset",
       },
-      // Camera model fine-tuning
       cameraYExtraOffset: {
-        value: -0.28,
+        value: -0.2,
         min: -2,
         max: 2,
         step: 0.01,
         label: "camera.glb Y Offset",
       },
       cameraYawOffsetDeg: {
-        value: 87,
+        value: 90,
         min: -180,
         max: 180,
         step: 1,
         label: "camera.glb Yaw Offset (deg)",
       },
-      // Syva model fine-tuning
       syvaYExtraOffset: {
-        value: -0.29,
+        value: -0.14,
         min: -2,
         max: 2,
         step: 0.01,
         label: "syva.glb Y Offset",
       },
       syvaXExtraOffset: {
-        value: 0.09,
+        value: -0.01,
         min: -10,
         max: 10,
         step: 0.01,
         label: "syva.glb X Offset",
       },
       syvaZExtraOffset: {
-        value: -0.62,
+        value: -0.02,
         min: -10,
         max: 10,
         step: 0.01,
@@ -101,13 +98,13 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
       },
     });
     const DRAG_SENSITIVITY = 0.0025;
-    const AUTO_ROTATE_SPEED = 0; // Radians per second
+    const AUTO_ROTATE_SPEED = 0;
     const FRONT_OF_CAROUSEL_ANGLE = Math.PI / 2;
     const rawModelPositions = models.map((model, index) => {
       const angle = (index / models.length) * Math.PI * 2;
       let x = Math.cos(angle) * carouselRadius;
       let z = Math.sin(angle) * carouselRadius;
-      if (model.path.endsWith("/syva.glb")) {
+      if (model.path.endsWith("/logo-sweet-spot.glb")) {
         x = -2 + syvaXExtraOffset;
         z = 0 + syvaZExtraOffset;
       }
@@ -118,6 +115,21 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
       rawModelPositions.forEach((pos) => sceneCenter.add(pos));
       sceneCenter.divideScalar(models.length);
     }
+
+    useLayoutEffect(() => {
+      if (!groupRef.current || models.length === 0) return;
+      const FRONT_OF_CAROUSEL_ANGLE = Math.PI / 2;
+      const preferredPathSuffix = "/models/camera.glb";
+      const indexToCenter = Math.max(
+        models.findIndex((m) => m.path.endsWith(preferredPathSuffix)),
+        0
+      );
+      const baseAngle = (indexToCenter / models.length) * Math.PI * 2;
+      const desiredRotation = FRONT_OF_CAROUSEL_ANGLE - baseAngle;
+      groupRef.current.rotation.y = desiredRotation;
+      currentYRotationRef.current = desiredRotation;
+    }, [models]);
+
     useEffect(() => {
       const domElement = gl.domElement;
       const handlePointerDown = (event: PointerEvent) => {
@@ -159,7 +171,6 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
     useFrame((state, delta) => {
       if (!groupRef.current) return;
 
-      // Animate to target rotation if requested
       if (animationRef.current.isAnimating) {
         const now = performance.now();
         const t = Math.min(
@@ -193,7 +204,6 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
         const baseAngle = (index / models.length) * Math.PI * 2;
         const desiredRotation = FRONT_OF_CAROUSEL_ANGLE - baseAngle;
         const current = groupRef.current.rotation.y;
-        // Normalize to the shortest path
         const delta =
           ((desiredRotation - current + Math.PI) % (Math.PI * 2)) - Math.PI;
         const target = current + delta;
@@ -214,7 +224,7 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
           let currentModelInitialX = Math.cos(angle) * carouselRadius;
           let currentModelInitialZ = Math.sin(angle) * carouselRadius;
           const initialModelYRotation = angle + Math.PI;
-          if (model.path.endsWith("/syva.glb")) {
+          if (model.path.endsWith("/logo-sweet-spot.glb")) {
             currentModelInitialX = -2 + syvaXExtraOffset;
             currentModelInitialZ = 0 + syvaZExtraOffset;
           }
@@ -222,27 +232,25 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
           let finalY = modelYOffset - sceneCenter.y;
           const finalZ = currentModelInitialZ - sceneCenter.z;
 
-          // Per-model Y offset overrides from Leva
           if (model.path.endsWith("/models/camera.glb")) {
             finalY += cameraYExtraOffset;
-          } else if (model.path.endsWith("/models/syva.glb")) {
+          } else if (model.path.endsWith("/models/logo-sweet-spot.glb")) {
             finalY += syvaYExtraOffset;
           }
 
           let currentModelScale = modelScale;
           if (model.path.endsWith("/models/camera.glb")) {
-            currentModelScale = modelScale * 5;
-          } else if (model.path.endsWith("/models/syva.glb")) {
-            currentModelScale = modelScale * 0.4;
-          } else if (model.path.endsWith("/models/3Dchably.glb")) {
+            currentModelScale = modelScale * 4;
+          } else if (model.path.endsWith("/models/logo-sweet-spot.glb")) {
             currentModelScale = modelScale * 1;
+          } else if (model.path.endsWith("/models/3Dchably.glb")) {
+            currentModelScale = modelScale * 0.9;
           }
 
-          // Compute rotation with optional yaw overrides per model (degrees → radians)
           let rotationY = initialModelYRotation;
           if (model.path.endsWith("/models/camera.glb")) {
             rotationY += THREE.MathUtils.degToRad(cameraYawOffsetDeg);
-          } else if (model.path.endsWith("/models/syva.glb")) {
+          } else if (model.path.endsWith("/models/logo-sweet-spot.glb")) {
             rotationY += THREE.MathUtils.degToRad(syvaYawOffsetDeg);
           }
 
@@ -269,6 +277,3 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
 );
 
 export default CarouselScene;
-
-// Help ESLint/React tooling with an explicit display name
-CarouselScene.displayName = "CarouselScene";

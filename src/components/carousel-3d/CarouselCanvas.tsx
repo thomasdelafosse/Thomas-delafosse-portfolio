@@ -54,9 +54,6 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
       });
     }, [models]);
 
-    // Use a unified background for all models (no per-model backgrounds)
-
-    // Lift the focused model info up to parent for rendering details below the fold
     useEffect(() => {
       onFocusedModelInfoChange?.(focusedModelInfo ?? null);
     }, [focusedModelInfo, onFocusedModelInfoChange]);
@@ -79,19 +76,7 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
 
     return (
       <div className="relative w-full h-full">
-        <Leva
-          hidden={true}
-          collapsed={false}
-          theme={{
-            sizes: {
-              rootWidth: "450px",
-              rowHeight: "30px",
-            },
-            fontSizes: {
-              root: "13px",
-            },
-          }}
-        />
+        <Leva hidden={true} collapsed={false} />
 
         <Canvas
           gl={{
@@ -104,7 +89,6 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
         >
           <CameraUpdater />
           <ambientLight intensity={ambientLightIntensity} />
-          {/* Transparent canvas background to let global particle background show through */}
           <Suspense fallback={null}>
             <CarouselScene
               ref={sceneRef}
@@ -114,13 +98,9 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
           </Suspense>
           <Environment preset="sunset" />
         </Canvas>
-        {/* No per-model decorative overlays */}
       </div>
     );
   }
 );
 
 export default CarouselCanvas;
-
-// Help ESLint/React tooling with an explicit display name
-CarouselCanvas.displayName = "CarouselCanvas";

@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import ImageCarousel from "@/components/image-carousel/ImageCarousel";
-// Global particles are now rendered at the page level
 
 interface MainSectionTypes {
   projectModels: ModelData[];
@@ -21,11 +20,9 @@ const MainSection = ({
   const [hasScrolled, setHasScrolled] = useState(false);
   const infoRef = useRef<HTMLDivElement | null>(null);
   const carouselRef = useRef<CarouselCanvasApi | null>(null);
-  // Scroll behavior control: skip initial mount, then always scroll to end on focus change
   const didMountRef = useRef(false);
 
   useEffect(() => {
-    // Initialize with first model's info so details are never empty
     if (!focusedInfo && projectModels.length > 0) {
       setFocusedInfo({
         description: projectModels[0].description,
@@ -38,7 +35,6 @@ const MainSection = ({
     infoRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Toggle chevron animation/orientation when the user scrolls down
   useEffect(() => {
     const onScroll = () => {
       if (typeof window === "undefined") return;
@@ -57,14 +53,12 @@ const MainSection = ({
     }
   };
 
-  // After focused model info changes (by any method), scroll to the end.
   useEffect(() => {
     if (!focusedInfo) return;
     if (!didMountRef.current) {
-      didMountRef.current = true; // skip initial page load
+      didMountRef.current = true;
       return;
     }
-    // Defer so DOM updates are applied before measuring/scrolling
     requestAnimationFrame(() => {
       infoRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
     });
@@ -149,7 +143,10 @@ const MainSection = ({
     };
 
     const parts = text.split(trigger);
-    if (parts.length > 1 && focusedInfo?.path?.endsWith("/models/syva.glb")) {
+    if (
+      parts.length > 1 &&
+      focusedInfo?.path?.endsWith("/models/logo-sweet-spot.glb")
+    ) {
       return (
         <>
           {renderPart(parts[0])}
@@ -180,7 +177,6 @@ const MainSection = ({
       className="relative flex-grow flex flex-col items-center justify-start z-10"
       style={style}
     >
-      {/* 3D canvas full viewport height */}
       <div className="relative w-full h-screen">
         <Carousel3D
           ref={carouselRef}
@@ -189,7 +185,6 @@ const MainSection = ({
           onFocusedModelInfoChange={setFocusedInfo}
           onScrollToInfo={handleScrollToInfo}
         />
-        {/* Bottom-center chevron */}
         <button
           onClick={handleChevronClick}
           aria-label={
@@ -215,13 +210,10 @@ const MainSection = ({
           </svg>
         </button>
       </div>
-
-      {/* Details section */}
       <div
         ref={infoRef}
         className="relative w-full flex justify-center px-4 py-8"
       >
-        {/* Background particles moved to page root to cover full page */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -231,7 +223,7 @@ const MainSection = ({
         >
           {parsedDescription}
         </motion.div>
-        {/* Prev / Next controls: full-width row so they stay left/right on all orientations */}
+
         <div className="absolute bottom-2 left-0 right-0 z-10 px-2 sm:px-4 md:px-8 lg:px-104">
           <div className="flex w-full items-center justify-between">
             <button
@@ -255,8 +247,6 @@ const MainSection = ({
           </div>
         </div>
       </div>
-
-      {/* Image carousel for Sweet Spot project */}
       <ImageCarousel
         images={sweetSpotImages}
         isOpen={showCarousel}
