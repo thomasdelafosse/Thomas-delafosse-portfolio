@@ -2,14 +2,23 @@ import { motion } from "framer-motion";
 
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
-import PointillismBackgroundMorphing from "@/components/ui-background-pointillisme/PointillismBackgroundMorphing";
-import BackgroundParticlesCanvas from "@/components/ui-background-pointillisme/BackgroundParticlesCanvas";
+import BackgroundParticles from "../ui-background-pointillisme/backgroundParticles2d";
+import PointillismBackground from "@/components/ui-background-pointillisme/PointillismBackground";
 
 interface InfoSectionTypes {
   onDiscoverProjects: () => void;
 }
 
-const InfoSection = ({ onDiscoverProjects }: InfoSectionTypes) => {
+type InfoSectionProps = InfoSectionTypes & {
+  showPointillismBackground?: boolean;
+  showEnterMorph?: boolean;
+};
+
+const InfoSection = ({
+  onDiscoverProjects,
+  showPointillismBackground = true,
+  showEnterMorph = true,
+}: InfoSectionProps) => {
   const pointillistBackgroundStyle = {
     backgroundColor: "#0a0a0a",
   } as const;
@@ -23,13 +32,17 @@ const InfoSection = ({ onDiscoverProjects }: InfoSectionTypes) => {
       style={pointillistBackgroundStyle}
       className="fixed inset-0 z-40 flex flex-col items-center justify-center p-6 md:p-8 text-white cursor-pointer"
     >
-      {/* Interactive pointillism shader background */}
-      {/* Background particles only, but keep enter effect separate */}
-      <BackgroundParticlesCanvas />
-      {/* Optional enter overlay */}
-      <PointillismBackgroundMorphing onEnter={onDiscoverProjects} />
-      {/* Foreground info card */}
-      <div className="p-6 bg-black/70 relative z-10">
+      {showPointillismBackground && <BackgroundParticles />}
+      {showEnterMorph && (
+        <PointillismBackground
+          position="absolute"
+          showBackground={false}
+          showEnterMorph
+          onEnter={onDiscoverProjects}
+        />
+      )}
+
+      <div className="p-6 bg-black/70 absolute z-30 bottom-14">
         <div className="flex flex-col md:flex-row gap-14">
           <AboutMeSection />
           <ContactSection />
