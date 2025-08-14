@@ -84,8 +84,8 @@ export function computeTransforms(
       model.path.endsWith(suffix)
     )?.[1];
 
-    let x = rawPositions[index].x - sceneCenter.x;
-    let z = rawPositions[index].z - sceneCenter.z;
+    const x = rawPositions[index].x - sceneCenter.x;
+    const z = rawPositions[index].z - sceneCenter.z;
     let y = modelYOffset - sceneCenter.y;
 
     if (model.path.endsWith("/models/camera.glb")) {
@@ -94,7 +94,7 @@ export function computeTransforms(
       y += syvaYExtraOffset;
     }
 
-    let effectiveScale = modelScale * (override?.scaleMultiplier ?? 1);
+    const effectiveScale = modelScale * (override?.scaleMultiplier ?? 1);
     let rotationY = initialYRotation;
     if (model.path.endsWith("/models/camera.glb")) {
       rotationY += THREE.MathUtils.degToRad(cameraYawOffsetDeg);

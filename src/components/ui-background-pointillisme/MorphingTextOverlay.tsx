@@ -26,7 +26,6 @@ export default function MorphingTextOverlay({
   position = "absolute",
   className,
 }: MorphingTextOverlayProps) {
-  if (!title) return null;
   const debug = useControls(
     "MorphingTextOverlay",
     {
@@ -46,6 +45,7 @@ export default function MorphingTextOverlay({
     },
     { collapsed: false }
   );
+  if (!title) return null;
   return (
     <OrthoCanvas
       position={position}

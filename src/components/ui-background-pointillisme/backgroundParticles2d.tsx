@@ -48,11 +48,8 @@ function Particles() {
   const { size, gl, camera } = useThree();
 
   const uniforms = useMemo(() => {
-    const dpr = gl.getPixelRatio();
     return {
-      uResolution: new THREE.Uniform(
-        new THREE.Vector2(size.width * dpr, size.height * dpr)
-      ),
+      uResolution: new THREE.Uniform(new THREE.Vector2(0, 0)),
       uPictureTexture: new THREE.Uniform(
         new THREE.TextureLoader().load("/images/moi.jpeg")
       ),
@@ -75,7 +72,8 @@ function Particles() {
     // Full-viewport plane size for a perspective camera
     const height =
       2 * Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2) * distance;
-    const width = height * cam.aspect;
+    const aspect = size.width / Math.max(1, size.height);
+    const width = height * aspect;
     return [width, height];
   }, [camera, size.width, size.height]);
 
