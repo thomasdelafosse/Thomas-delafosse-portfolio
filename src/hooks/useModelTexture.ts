@@ -7,6 +7,71 @@ interface ModelTextureTypes {
   scene: THREE.Group | null;
 }
 
+function applyStandardMaterial(
+  mesh: THREE.Mesh,
+  maps: {
+    colorMap: THREE.Texture;
+    normalMap: THREE.Texture;
+    metallicMap: THREE.Texture;
+    roughnessMap: THREE.Texture;
+    aoMap: THREE.Texture;
+  }
+) {
+  if (mesh.material instanceof THREE.MeshStandardMaterial) {
+    mesh.material.map = maps.colorMap;
+    mesh.material.color.set(0xffffff);
+    mesh.material.normalMap = maps.normalMap;
+    mesh.material.metalnessMap = maps.metallicMap;
+    mesh.material.roughnessMap = maps.roughnessMap;
+    mesh.material.aoMap = maps.aoMap;
+    mesh.material.metalness = 1.0;
+    mesh.material.roughness = 1.0;
+    mesh.material.needsUpdate = true;
+  } else {
+    const newMaterial = new THREE.MeshStandardMaterial({
+      map: maps.colorMap,
+      color: new THREE.Color(0xffffff),
+      normalMap: maps.normalMap,
+      metalnessMap: maps.metallicMap,
+      roughnessMap: maps.roughnessMap,
+      aoMap: maps.aoMap,
+      metalness: 1.0,
+      roughness: 1.0,
+    });
+    mesh.material = newMaterial;
+  }
+}
+
+function applySolidMaterial(
+  mesh: THREE.Mesh,
+  color: THREE.ColorRepresentation,
+  metalness: number,
+  roughness: number
+) {
+  if (mesh.material instanceof THREE.MeshStandardMaterial) {
+    mesh.material.map = null;
+    mesh.material.normalMap = null;
+    mesh.material.metalnessMap = null;
+    mesh.material.roughnessMap = null;
+    mesh.material.aoMap = null;
+    mesh.material.color.set(color);
+    mesh.material.metalness = metalness;
+    mesh.material.roughness = roughness;
+    mesh.material.needsUpdate = true;
+  } else {
+    const newMaterial = new THREE.MeshStandardMaterial({
+      color,
+      metalness,
+      roughness,
+    });
+    mesh.material = newMaterial;
+  }
+}
+
+type MaterialPolicy = (scene: THREE.Group) => void;
+
+export const MATERIAL_POLICIES: Record<string, MaterialPolicy> = {} as const;
+
 export const useModelTexture = ({ modelPath, scene }: ModelTextureTypes) => {
   const colorMap = useLoader(
     THREE.TextureLoader,
@@ -54,35 +119,49 @@ export const useModelTexture = ({ modelPath, scene }: ModelTextureTypes) => {
   }, [colorMap, normalMap, metallicMap, roughnessMap, aoMap, maskMap]);
 
   useEffect(() => {
-    if (modelPath.endsWith("/models/camera.glb") && scene) {
+    if (!scene) return;
+    const applyPolicyForCamera = () => {
       scene.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
-          const mesh = child as THREE.Mesh;
-          if (mesh.material instanceof THREE.MeshStandardMaterial) {
-            mesh.material.map = colorMap;
-            mesh.material.color.set(0xffffff);
-            mesh.material.normalMap = normalMap;
-            mesh.material.metalnessMap = metallicMap;
-            mesh.material.roughnessMap = roughnessMap;
-            mesh.material.aoMap = aoMap;
-            mesh.material.metalness = 1.0;
-            mesh.material.roughness = 1.0;
-            mesh.material.needsUpdate = true;
-          } else {
-            const newMaterial = new THREE.MeshStandardMaterial({
-              map: colorMap,
-              color: new THREE.Color(0xffffff),
-              normalMap: normalMap,
-              metalnessMap: metallicMap,
-              roughnessMap: roughnessMap,
-              aoMap: aoMap,
-              metalness: 1.0,
-              roughness: 1.0,
-            });
-            mesh.material = newMaterial;
-          }
+          applyStandardMaterial(child as THREE.Mesh, {
+            colorMap,
+            normalMap,
+            metallicMap,
+            roughnessMap,
+            aoMap,
+          });
         }
       });
+    };
+
+    const applyPolicyForLogo = () => {
+      const black = new THREE.Color("#000000");
+      scene.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          applySolidMaterial(child as THREE.Mesh, black, 0.2, 0.55);
+        }
+      });
+    };
+
+    const policies: Array<{
+      test: (path: string) => boolean;
+      run: () => void;
+    }> = [
+      {
+        test: (p) => p.endsWith("/models/camera.glb"),
+        run: applyPolicyForCamera,
+      },
+      {
+        test: (p) => p.endsWith("/models/logo-sweet-spot.glb"),
+        run: applyPolicyForLogo,
+      },
+    ];
+
+    for (const policy of policies) {
+      if (policy.test(modelPath)) {
+        policy.run();
+        break;
+      }
     }
   }, [
     scene,
@@ -94,33 +173,4 @@ export const useModelTexture = ({ modelPath, scene }: ModelTextureTypes) => {
     aoMap,
     maskMap,
   ]);
-
-  useEffect(() => {
-    if (modelPath.endsWith("/models/logo-sweet-spot.glb") && scene) {
-      const black = new THREE.Color("#000000");
-      scene.traverse((child) => {
-        if ((child as THREE.Mesh).isMesh) {
-          const mesh = child as THREE.Mesh;
-          if (mesh.material instanceof THREE.MeshStandardMaterial) {
-            mesh.material.map = null;
-            mesh.material.normalMap = null;
-            mesh.material.metalnessMap = null;
-            mesh.material.roughnessMap = null;
-            mesh.material.aoMap = null;
-            mesh.material.color.copy(black);
-            mesh.material.metalness = 0.2;
-            mesh.material.roughness = 0.55;
-            mesh.material.needsUpdate = true;
-          } else {
-            const newMaterial = new THREE.MeshStandardMaterial({
-              color: black,
-              metalness: 0.2,
-              roughness: 0.55,
-            });
-            mesh.material = newMaterial;
-          }
-        }
-      });
-    }
-  }, [scene, modelPath]);
 };
