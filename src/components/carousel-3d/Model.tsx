@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { ModelTypes } from "@/types/types";
 import { useModelTexture } from "@/hooks/useModelTexture";
+import { FOCUS_THRESHOLD_ANGLE, FRONT_OF_CAROUSEL_ANGLE } from "./constants";
 
 const Model = ({
   path,
@@ -19,24 +20,24 @@ const Model = ({
   const { scene } = useGLTF(path);
   const modelRef = useRef<THREE.Group>(null);
   const wasInFocusRef = useRef<boolean | null>(null);
-  const baseAngleInCarousel = (modelIndex / numModels) * Math.PI * 2;
+  const baseAngleInCarousel = useMemo(
+    () => (modelIndex / numModels) * Math.PI * 2,
+    [modelIndex, numModels]
+  );
 
   useModelTexture({ modelPath: path, scene: scene });
 
   useFrame(() => {
     if (modelRef.current) {
-      // Accessing the ref is enough; local variable not needed
       const modelAbsoluteAngleInCarousel =
         baseAngleInCarousel + carouselRotationRef.current;
-      const frontOfCarouselAngle = Math.PI / 2;
       let angleDifferenceFromFront =
-        modelAbsoluteAngleInCarousel - frontOfCarouselAngle;
+        modelAbsoluteAngleInCarousel - FRONT_OF_CAROUSEL_ANGLE;
       angleDifferenceFromFront =
         THREE.MathUtils.euclideanModulo(
           angleDifferenceFromFront + Math.PI,
           Math.PI * 2
         ) - Math.PI;
-      const FOCUS_THRESHOLD_ANGLE = Math.PI / 3.5;
       const isInFocus =
         Math.abs(angleDifferenceFromFront) < FOCUS_THRESHOLD_ANGLE;
 

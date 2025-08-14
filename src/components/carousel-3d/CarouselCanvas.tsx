@@ -6,7 +6,6 @@ import {
   forwardRef,
 } from "react";
 import { Canvas } from "@react-three/fiber";
-import { useProgress, Environment, useGLTF } from "@react-three/drei";
 import { Leva } from "leva";
 import CarouselScene from "./CarouselScene";
 import {
@@ -15,8 +14,12 @@ import {
   CarouselSceneApi,
 } from "@/types/types";
 import CameraUpdater from "./CameraUpdater";
+import SceneLighting from "./SceneLighting";
+import { getWrappedIndex } from "./utils/math";
 import { useFocusedModelInfo } from "@/hooks/useFocusedModelInfo";
 import useSceneControls from "@/hooks/useSceneControls";
+import { usePreloadGLTF } from "@/hooks/usePreloadGLTF";
+import { useOnModelProgress } from "@/hooks/useOnModelProgress";
 
 const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
   (
@@ -28,31 +31,14 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
     },
     ref
   ) => {
-    const { ambientLightIntensity, cameraFov, cameraPosition } =
-      useSceneControls();
+    const { cameraFov, cameraPosition } = useSceneControls();
 
     const { focusedModelInfo, handleFocusChange, currentIndex } =
       useFocusedModelInfo(models, onModelFocusStatusChange);
-    // No body scroll lock: users should scroll to details
 
-    const { progress } = useProgress();
+    useOnModelProgress(onModelProgress);
 
-    useEffect(() => {
-      if (onModelProgress) {
-        onModelProgress(progress);
-      }
-    }, [progress, onModelProgress]);
-
-    // Preload GLTF models to avoid hitches when rotating/focusing
-    useEffect(() => {
-      models?.forEach((m) => {
-        if (m?.path) {
-          try {
-            useGLTF.preload(m.path);
-          } catch {}
-        }
-      });
-    }, [models]);
+    usePreloadGLTF(models);
 
     useEffect(() => {
       onFocusedModelInfoChange?.(focusedModelInfo ?? null);
@@ -62,13 +48,13 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
 
     const next = () => {
       if (!models.length) return;
-      const target = (currentIndex + 1 + models.length) % models.length;
+      const target = getWrappedIndex(currentIndex, 1, models.length);
       sceneRef.current?.rotateToIndex(target);
     };
 
     const prev = () => {
       if (!models.length) return;
-      const target = (currentIndex - 1 + models.length) % models.length;
+      const target = getWrappedIndex(currentIndex, -1, models.length);
       sceneRef.current?.rotateToIndex(target);
     };
 
@@ -88,7 +74,7 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
           camera={{ position: cameraPosition, fov: cameraFov }}
         >
           <CameraUpdater />
-          <ambientLight intensity={ambientLightIntensity} />
+
           <Suspense fallback={null}>
             <CarouselScene
               ref={sceneRef}
@@ -96,7 +82,7 @@ const CarouselCanvas = forwardRef<CarouselCanvasApi, CarouselTypes>(
               onFocusChange={handleFocusChange}
             />
           </Suspense>
-          <Environment preset="sunset" />
+          <SceneLighting />
         </Canvas>
       </div>
     );
