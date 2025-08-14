@@ -20,6 +20,14 @@ export function generateTextPositions(
   ctx.font = `${fontSize}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  // Auto-fit text to canvas width with a small margin
+  const maxWidth = canvasWidth * 0.9;
+  const initialMetrics = ctx.measureText(text);
+  if (initialMetrics.width > maxWidth) {
+    const fitScale = maxWidth / initialMetrics.width;
+    const fittedFontSize = Math.max(1, Math.floor(fontSize * fitScale));
+    ctx.font = `${fittedFontSize}px sans-serif`;
+  }
   ctx.fillText(text, canvasWidth / 2, canvasHeight / 2);
 
   const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);

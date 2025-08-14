@@ -53,7 +53,7 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
       currentYRotationRef.current = desiredRotation;
     }, [models, currentYRotationRef]);
 
-    useFrame((state, delta) => {
+    useFrame(() => {
       if (!groupRef.current) return;
 
       if (animationRef.current.isAnimating) {

@@ -5,6 +5,7 @@ export interface ModelData {
   path: string;
   description: string;
   url: string;
+  title?: string;
 }
 
 // Added FocusData back for use in useFocusedModelInfo state

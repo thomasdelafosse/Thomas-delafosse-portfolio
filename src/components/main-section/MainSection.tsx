@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import ImageCarousel from "@/components/image-carousel/ImageCarousel";
+import MorphingTextOverlay from "@/components/ui-background-pointillisme/MorphingTextOverlay";
 
 interface MainSectionTypes {
   projectModels: ModelData[];
@@ -178,6 +179,17 @@ const MainSection = ({
       style={style}
     >
       <div className="relative w-full h-screen">
+        {/** Morphing title over the carousel */}
+        <MorphingTextOverlay
+          title={
+            projectModels.find((m) => m.path === focusedInfo?.path)?.title ??
+            null
+          }
+          position="absolute"
+          yOffset={0.5}
+          textScale={1.0}
+          className="z-10"
+        />
         <Carousel3D
           ref={carouselRef}
           models={projectModels}

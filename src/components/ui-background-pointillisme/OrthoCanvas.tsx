@@ -38,7 +38,13 @@ export default function OrthoCanvas({
         dpr={dpr}
         frameloop={frameloop}
         className="w-full h-full"
-        style={{ position: "absolute", inset: 0 }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          ...(containerProps.style?.pointerEvents
+            ? { pointerEvents: containerProps.style.pointerEvents }
+            : {}),
+        }}
       >
         {backgroundColor ? (
           <color attach="background" args={backgroundColor} />
