@@ -1,7 +1,7 @@
 import Carousel3D from "@/components/carousel-3d/CarouselCanvas";
 import { CarouselCanvasApi } from "@/types/types";
 import { FocusData, ModelData } from "@/types/types";
-import { createRef, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import ImageCarousel from "@/components/image-carousel/ImageCarousel";
 import MorphingTextOverlay from "@/components/ui-background-pointillisme/MorphingTextOverlay";
@@ -25,6 +25,7 @@ const MainSection = ({
   const infoRef = useRef<HTMLDivElement | null>(null);
   const carouselRef = useRef<CarouselCanvasApi | null>(null);
   const pendingScrollRef = useRef<null | "info">(null);
+  const descNodeRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!focusedInfo && projectModels.length > 0) {
@@ -48,14 +49,6 @@ const MainSection = ({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // const handleChevronClick = () => {
-  //   if (hasScrolled) {
-  //     window.scrollTo({ top: 0, behavior: "smooth" });
-  //   } else {
-  //     pendingScrollRef.current = "info";
-  //   }
-  // };
 
   const parsedDescription = useMemo(() => {
     if (!focusedInfo?.description) return null;
@@ -201,7 +194,7 @@ const MainSection = ({
           aria-label={
             hasScrolled ? "Scroll to top" : "Scroll for project details"
           }
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-white/90 hover:text-white transition-colors"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-black hover:text-black transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -225,31 +218,23 @@ const MainSection = ({
         ref={infoRef}
         className="relative w-full flex justify-center px-4 py-8"
       >
-        {(() => {
-          const descNodeRef = useMemo(
-            () => createRef<HTMLDivElement>(),
-            [focusedInfo?.path]
-          );
-          return (
-            <SwitchTransition mode="out-in">
-              <CSSTransition
-                key={focusedInfo?.path ?? "__none__"}
-                classNames={
-                  transitionDirection === "next" ? "desc-left" : "desc-right"
-                }
-                timeout={300}
-                nodeRef={descNodeRef}
-              >
-                <div
-                  ref={descNodeRef}
-                  className="relative max-w-3xl w-full text-center bg-black/80 text-white whitespace-pre-line overflow-hidden p-6 md:p-8 pb-16 text-base md:text-lg"
-                >
-                  {parsedDescription}
-                </div>
-              </CSSTransition>
-            </SwitchTransition>
-          );
-        })()}
+        <SwitchTransition mode="out-in">
+          <CSSTransition
+            key={focusedInfo?.path ?? "__none__"}
+            classNames={
+              transitionDirection === "next" ? "desc-left" : "desc-right"
+            }
+            timeout={150}
+            nodeRef={descNodeRef}
+          >
+            <div
+              ref={descNodeRef}
+              className="relative max-w-3xl w-full text-center bg-black/80 text-white whitespace-pre-line overflow-hidden p-6 md:p-8 pb-16 text-base md:text-lg"
+            >
+              {parsedDescription}
+            </div>
+          </CSSTransition>
+        </SwitchTransition>
 
         <button
           onClick={() => {

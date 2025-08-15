@@ -23,8 +23,7 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
       {},
       ({ rotation, angularVelocity }) => {
         if (!groupRef.current || models.length === 0) return;
-        const stepAngle = (Math.PI * 2) / models.length;
-        // Compute floating index from rotation
+
         const indexFloat =
           ((FRONT_OF_CAROUSEL_ANGLE - rotation) / (Math.PI * 2)) *
           models.length;

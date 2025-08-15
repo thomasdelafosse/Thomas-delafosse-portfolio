@@ -4,12 +4,12 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { useRouter } from "next/router";
-import { createRef, useMemo } from "react";
+import { useRef } from "react";
 import { SwitchTransition, CSSTransition } from "react-transition-group";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const nodeRef = useMemo(() => createRef<HTMLDivElement>(), [router.asPath]);
+  const nodeRef = useRef<HTMLDivElement>(null);
   return (
     <>
       <SwitchTransition mode="out-in">
@@ -19,10 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
           timeout={150}
           nodeRef={nodeRef}
         >
-          <div
-            ref={nodeRef as React.RefObject<HTMLDivElement>}
-            className="min-h-[100svh] md:min-h-screen"
-          >
+          <div ref={nodeRef} className="min-h-[100svh] md:min-h-screen">
             <Component {...pageProps} />
           </div>
         </CSSTransition>

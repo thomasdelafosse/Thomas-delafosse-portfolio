@@ -24,6 +24,11 @@ export function useCarouselRotation(
   const dragSensitivity = options.dragSensitivity ?? DRAG_SENSITIVITY;
   const autoRotateSpeed = options.autoRotateSpeed ?? AUTO_ROTATE_SPEED;
 
+  const onReleaseRef = useRef(onRelease);
+  useEffect(() => {
+    onReleaseRef.current = onRelease;
+  }, [onRelease]);
+
   useEffect(() => {
     const domElement = gl.domElement;
     const handlePointerDown = (event: PointerEvent) => {
@@ -71,7 +76,7 @@ export function useCarouselRotation(
           angularVelocity = vx * dragSensitivity; // rad/ms
         }
         moveHistoryRef.current = [];
-        onRelease?.({
+        onReleaseRef.current?.({
           rotation: currentYRotationRef.current,
           angularVelocity,
         });
