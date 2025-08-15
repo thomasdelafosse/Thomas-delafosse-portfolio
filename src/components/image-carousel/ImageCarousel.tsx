@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Button from "@/components/ui/Button";
 
 interface ImageCarouselType {
   images: string[];
@@ -47,13 +48,14 @@ const ImageCarousel: React.FC<ImageCarouselType> = ({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <button
+        <Button
           onClick={onClose}
           className="absolute top-4 right-4 text-white text-4xl z-50"
+          variant="icon"
           aria-label="Close"
         >
           &times;
-        </button>
+        </Button>
 
         <div className="w-full h-full flex justify-center items-center overflow-hidden">
           <div className="relative w-full h-full">
@@ -87,21 +89,23 @@ const ImageCarousel: React.FC<ImageCarouselType> = ({
           </div>
         </div>
 
-        <button
+        <Button
           onClick={goToPrevious}
           className="absolute left-4 top-1/2 -translate-y-1/2 text-white text-4xl"
+          variant="icon"
           aria-label="Previous image"
         >
           &lt;
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={goToNext}
           className="absolute right-4 top-1/2 -translate-y-1/2 text-white text-4xl"
+          variant="icon"
           aria-label="Next image"
         >
           &gt;
-        </button>
+        </Button>
 
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-lg">
           {currentIndex + 1} / {images.length}

@@ -3,6 +3,7 @@ import { CarouselCanvasApi } from "@/types/types";
 import { FocusData, ModelData } from "@/types/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Button from "@/components/ui/Button";
 import ImageCarousel from "@/components/image-carousel/ImageCarousel";
 import MorphingTextOverlay from "@/components/ui-background-pointillisme/MorphingTextOverlay";
 import { CSSTransition, SwitchTransition } from "react-transition-group";
@@ -136,12 +137,13 @@ const MainSection = ({
       return (
         <>
           {renderPart(parts[0])}
-          <button
+          <Button
             onClick={() => setShowCarousel(true)}
             className="text-white hover:text-slate-400 hover:underline cursor-pointer"
+            variant="text"
           >
             {trigger}
-          </button>
+          </Button>
           {renderPart(parts[1])}
         </>
       );
@@ -190,11 +192,12 @@ const MainSection = ({
           }}
           onScrollToInfo={handleScrollToInfo}
         />
-        <button
+        <Button
           aria-label={
             hasScrolled ? "Scroll to top" : "Scroll for project details"
           }
           className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-black hover:text-black transition-colors"
+          variant="icon"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -212,7 +215,7 @@ const MainSection = ({
               d="M19 9l-7 7-7-7"
             />
           </svg>
-        </button>
+        </Button>
       </div>
       <div
         ref={infoRef}
@@ -236,26 +239,28 @@ const MainSection = ({
           </CSSTransition>
         </SwitchTransition>
 
-        <button
+        <Button
           onClick={() => {
             setTransitionDirection("prev");
             carouselRef.current?.prev();
           }}
-          className="fixed bottom-4 left-4 z-50 px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
+          className="fixed bottom-4 left-4 z-50 px-4 py-2 text-white cursor-pointer"
+          variant="solid"
           aria-label="Previous project"
         >
           PREVIOUS
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => {
             setTransitionDirection("next");
             carouselRef.current?.next();
           }}
-          className="fixed bottom-4 right-4 z-50 px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
+          className="fixed bottom-4 right-4 z-50 px-4 py-2 text-white cursor-pointer"
+          variant="solid"
           aria-label="Next project"
         >
           NEXT
-        </button>
+        </Button>
       </div>
       <ImageCarousel
         images={sweetSpotImages}

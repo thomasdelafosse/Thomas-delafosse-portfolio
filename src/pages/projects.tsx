@@ -3,6 +3,7 @@ import MainSection from "@/components/main-section/MainSection";
 import PointillismBackground from "@/components/ui-background-pointillisme/PointillismBackground";
 import projectModelsData from "@/data/ProjectsInformation";
 import { useRouter } from "next/router";
+import Button from "@/components/ui/Button";
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -15,13 +16,14 @@ export default function ProjectsPage() {
           showBackground
           densityScale={1}
         />
-        <button
+        <Button
           onClick={() => router.push("/")}
-          className="fixed top-4 right-4 z-50 p-2 px-4 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
+          className="fixed top-4 right-4 z-50 p-2 px-4 text-white cursor-pointer"
+          variant="solid"
           aria-label="Show info"
         >
           ABOUT ME
-        </button>
+        </Button>
         <div className="fixed top-5 left-5 z-50">
           <Image
             src="/images/logoBlanc.png"
