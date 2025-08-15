@@ -51,7 +51,7 @@ const ImageCarousel: React.FC<ImageCarouselType> = ({
         <Button
           onClick={onClose}
           className="absolute top-4 right-4 text-white text-4xl z-50"
-          variant="solid"
+          variant="icon"
           aria-label="Close"
         >
           &times;

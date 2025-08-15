@@ -1,7 +1,7 @@
 import React from "react";
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "solid";
+  variant?: "solid" | "icon";
 };
 
 const BASE_BUTTON_CLASSES =
@@ -10,6 +10,7 @@ const BASE_BUTTON_CLASSES =
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps["variant"]>, string> = {
   solid:
     "px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20",
+  icon: "p-1 bg-transparent",
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

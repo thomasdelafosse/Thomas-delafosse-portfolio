@@ -140,7 +140,7 @@ const MainSection = ({
           <Button
             onClick={() => setShowCarousel(true)}
             className="text-white hover:text-slate-400 hover:underline cursor-pointer"
-            variant="text"
+            variant="icon"
           >
             {trigger}
           </Button>
