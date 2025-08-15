@@ -1,6 +1,6 @@
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
-import BackgroundParticles from "../ui-background-pointillisme/backgroundParticles2d";
+import BackgroundParticles from "../ui-background-pointillisme/BackgroundParticles2d";
 import PointillismBackground from "@/components/ui-background-pointillisme/PointillismBackground";
 import Button from "@/components/ui/Button";
 
