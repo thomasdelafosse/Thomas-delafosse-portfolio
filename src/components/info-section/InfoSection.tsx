@@ -38,7 +38,7 @@ const InfoSection = ({
         />
       )}
 
-      <div className="p-6 bg-black/80 absolute z-30 left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-[90vw] max-w-md md:max-w-none md:w-auto md:bottom-14 md:top-auto md:translate-y-0 md:left-auto md:translate-x-0">
+      <div className="p-6 bg-black/60 absolute z-30 left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-[90vw] max-w-md md:max-w-none md:w-auto md:bottom-14 md:top-auto md:translate-y-0 md:left-auto md:translate-x-0">
         <div className="flex flex-col md:flex-row gap-14">
           <AboutMeSection />
           <ContactSection />

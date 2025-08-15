@@ -5,6 +5,7 @@ import * as THREE from "three";
 const vertexShader = /* glsl */ `
 uniform vec2 uResolution;
 uniform sampler2D uPictureTexture;
+uniform float uPointSizeScale;
 varying vec3 vColor;
 
 
@@ -18,7 +19,7 @@ void main() {
   float pictureIntensity = texture(uPictureTexture, uv).r;
 
   // Scale point size using the intensity and resolution, and keep perspective sizing
-  gl_PointSize = 0.15 * pictureIntensity * uResolution.y;
+  gl_PointSize = uPointSizeScale * pictureIntensity * uResolution.y;
   gl_PointSize *= (1.0 / -viewPosition.z);
   
       vColor = vec3(pow(pictureIntensity, 2.0));
@@ -53,6 +54,7 @@ function Particles() {
       uPictureTexture: new THREE.Uniform(
         new THREE.TextureLoader().load("/images/moi.jpeg")
       ),
+      uPointSizeScale: new THREE.Uniform(0.15),
     } as Record<string, THREE.IUniform>;
   }, []);
 
@@ -79,7 +81,21 @@ function Particles() {
 
   return (
     <points>
-      <planeGeometry args={[planeW, planeH, 256, 256]} />
+      {(() => {
+        const isMobile = size.width <= 768;
+        const segments = isMobile ? 128 : 256;
+        const planeScale = isMobile ? 1 : 1.0;
+        return (
+          <planeGeometry
+            args={[
+              planeW * planeScale,
+              planeH * planeScale,
+              segments,
+              segments,
+            ]}
+          />
+        );
+      })()}
       <shaderMaterial
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
