@@ -4,7 +4,7 @@ A personal portfolio built with Next.js page router, React, TypeScript, and Thre
 
 ### Preview
 
-![Portfolio preview](public/images/readme-preview.jpeg)
+![Portfolio preview](public/images/readme-preview.png)
 
 ### Tech stack
 
