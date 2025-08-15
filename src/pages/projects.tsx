@@ -8,7 +8,7 @@ export default function ProjectsPage() {
   const router = useRouter();
   return (
     <>
-      <div className="relative flex flex-col min-h-screen">
+      <div className="relative flex flex-col min-h-[100svh] md:min-h-screen">
         {/* Global background particles covering entire page including scroll */}
         <PointillismBackground
           position="fixed"

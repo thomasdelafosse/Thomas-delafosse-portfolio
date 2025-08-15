@@ -21,7 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
         >
           <div
             ref={nodeRef as React.RefObject<HTMLDivElement>}
-            className="min-h-screen"
+            className="min-h-[100svh] md:min-h-screen"
           >
             <Component {...pageProps} />
           </div>

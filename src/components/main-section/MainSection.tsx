@@ -170,7 +170,7 @@ const MainSection = ({
       className="relative flex-grow flex flex-col items-center justify-start z-10"
       style={style}
     >
-      <div className="relative w-full h-screen">
+      <div className="relative w-full h-[100svh] md:h-screen">
         {/** Morphing title over the carousel */}
         <MorphingTextOverlay
           title={
