@@ -106,6 +106,12 @@ function TextParticles({
   const halfWidthWorld = size.width / ortho.zoom / 2;
   const halfHeightWorld = size.height / ortho.zoom / 2;
 
+  // Reduce particle count on small screens to make the morph lighter
+  const isSmallViewport = size.width <= 768;
+  const effectiveParticleCount = isSmallViewport
+    ? Math.min(1500, particleCount)
+    : particleCount;
+
   const textPositions = useMemo(() => {
     return generateTextPositions(
       text.toUpperCase(),
@@ -119,12 +125,12 @@ function TextParticles({
   const { startPositions, targetPositions, sizes } = useMemo(
     () =>
       createParticleAttributes(
-        particleCount,
+        effectiveParticleCount,
         halfWidthWorld,
         halfHeightWorld,
         textPositions
       ),
-    [particleCount, halfWidthWorld, halfHeightWorld, textPositions]
+    [effectiveParticleCount, halfWidthWorld, halfHeightWorld, textPositions]
   );
 
   // Compute text bounds in world units to enable auto-fit scaling with margins
@@ -220,16 +226,21 @@ function TextParticles({
     () => ({
       uMorph: { value: 0 },
       uTime: { value: 0 },
-      uColor: { value: new THREE.Color(0xffffff) },
+      uColor: { value: new THREE.Color(isSmallViewport ? 0x000000 : 0xffffff) },
       uAlpha: { value: 0.9 },
       uBaseSize: { value: baseSize },
-      uDevicePixelRatio: { value: getClampedDevicePixelRatio(dprMax) },
+      // Slightly clamp DPR more on small screens to reduce overdraw
+      uDevicePixelRatio: {
+        value: getClampedDevicePixelRatio(
+          isSmallViewport ? Math.min(1.5, dprMax) : dprMax
+        ),
+      },
       uTargetOffset: {
         value: new THREE.Vector3(0, yOffset * halfHeightWorld, 0),
       },
       uTextScale: { value: fittedScale },
     }),
-    [yOffset, halfHeightWorld, fittedScale, baseSize, dprMax]
+    [yOffset, halfHeightWorld, fittedScale, baseSize, dprMax, isSmallViewport]
   );
 
   return (
@@ -238,7 +249,9 @@ function TextParticles({
         ref={materialRef}
         depthWrite={false}
         transparent
-        blending={THREE.AdditiveBlending}
+        blending={
+          isSmallViewport ? THREE.NormalBlending : THREE.AdditiveBlending
+        }
         uniforms={uniforms}
         vertexShader={enterParticlesVertexShader}
         fragmentShader={enterParticlesFragmentShader}
