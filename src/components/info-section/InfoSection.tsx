@@ -1,4 +1,4 @@
-import BackgroundParticles from "@/components/ui-background-pointillisme/BackgroundParticles2d";
+import BackgroundParticles from "@/components/ui-background-pointillisme/backgroundParticles2d";
 import PointillismBackground from "@/components/ui-background-pointillisme/PointillismBackground";
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
