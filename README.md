@@ -1,10 +1,10 @@
 ## Thomas Delafosse – Portfolio
 
-A personal portfolio built with Next.js, React, TypeScript, and Three.js. It features interactive 3D elements, a pointillism-inspired background.
+A personal portfolio built with Next.js page router, React, TypeScript, and Three.js. It features 3D carousel, a pointillism-inspired background with particles morphing area.
 
 ### Preview
 
-![Portfolio preview](public/images/moi.jpeg)
+![Portfolio preview](public/images/readme-preview.jpeg)
 
 ### Tech stack
 
@@ -36,6 +36,7 @@ src/
 
 ### Scripts
 
+- **yarn install**: install the packages
 - **yarn dev**: start the dev server with Turbopack
 - **yarn build**: create a production build
 - **yarn start**: run the production server
