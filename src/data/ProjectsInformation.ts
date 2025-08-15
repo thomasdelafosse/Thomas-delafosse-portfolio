@@ -10,14 +10,14 @@ const projectModels = [
     path: "/models/camera.glb",
     title: "Mathieu Le Gal",
     description:
-      "Mathieu Le Gal, MAR 2025 - APR 2025\n <Link href='https://mathieulegal.com' target='_blank' rel='noopener noreferrer'>https://mathieulegal.com</Link>\n\n• Design made by Mathieu Le Gal\n• Frontend: Creation of a portfolio website for Mathieu Le Gal - Motion Designer\n• Internationalisation: Implemented a complete i18n solution using next-intl and Next.js Page router \nTools used : TypeScript, Next.js, Tailwind",
+      "Mathieu Le Gal, MAR 2025 - APR 2025\n <Link href='https://mathieulegal.com' target='_blank' rel='noopener noreferrer'>https://mathieulegal.com</Link>\n\n• Design made by Mathieu Le Gal\n• Frontend: Creation of a portfolio website for Mathieu Le Gal - Motion Designer \n• Frontend: Animations using framer motion\n• Internationalisation: Implemented a complete i18n solution using next-intl and Next.js Page router",
     url: "https://mathieulegal.com",
   },
   {
     path: "/models/3Dchably.glb",
     title: "Maison Mine",
     description:
-      "Maison Mine, JAN 2025 – FEB 2025\n <Link href='https://maisonmine.com' target='_blank' rel='noopener noreferrer'>https://maisonmine.com</Link>\n\n• Website for the Maison Mine company \n• Frontend: website refont + design improvements \n• Backend: Implementation of Sanity CMS for the client \n• Three.js: Creation of 3D models using 3daistudio + implementation with Three.js\n• Tools used : TypeScript, Next.js, Three.js, Tailwind, Sanity CMS, 3daistudio",
+      "Maison Mine, JAN 2025 – FEB 2025\n <Link href='https://maisonmine.com' target='_blank' rel='noopener noreferrer'>https://maisonmine.com</Link>\n\n• Website for the Maison Mine company \n• Frontend: website refont + design improvements \n• Backend: Implementation of Sanity CMS for the client \n• Three.js: Creation of 3D models using 3daistudio + implementation with Three.js",
     url: "https://maisonmine.com",
   },
 ];
