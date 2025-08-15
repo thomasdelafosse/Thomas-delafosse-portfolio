@@ -24,7 +24,6 @@ const MainSection = ({
   >("next");
   const infoRef = useRef<HTMLDivElement | null>(null);
   const carouselRef = useRef<CarouselCanvasApi | null>(null);
-  const didMountRef = useRef(false);
   const pendingScrollRef = useRef<null | "info">(null);
 
   useEffect(() => {
@@ -50,24 +49,13 @@ const MainSection = ({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleChevronClick = () => {
-    if (hasScrolled) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      // Defer scroll until morphing completes
-      pendingScrollRef.current = "info";
-    }
-  };
-
-  useEffect(() => {
-    if (!focusedInfo) return;
-    if (!didMountRef.current) {
-      didMountRef.current = true;
-      return;
-    }
-    // Defer scroll; will execute when morphing completes
-    pendingScrollRef.current = "info";
-  }, [focusedInfo]);
+  // const handleChevronClick = () => {
+  //   if (hasScrolled) {
+  //     window.scrollTo({ top: 0, behavior: "smooth" });
+  //   } else {
+  //     pendingScrollRef.current = "info";
+  //   }
+  // };
 
   const parsedDescription = useMemo(() => {
     if (!focusedInfo?.description) return null;
@@ -206,12 +194,10 @@ const MainSection = ({
           onModelProgress={onModelProgress}
           onFocusedModelInfoChange={(info) => {
             setFocusedInfo(info);
-            pendingScrollRef.current = "info";
           }}
           onScrollToInfo={handleScrollToInfo}
         />
         <button
-          onClick={handleChevronClick}
           aria-label={
             hasScrolled ? "Scroll to top" : "Scroll for project details"
           }
