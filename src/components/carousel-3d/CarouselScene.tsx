@@ -18,7 +18,46 @@ const CarouselScene = forwardRef<CarouselSceneApi, CarouselSceneTypes>(
   ({ models = [], onFocusChange }, ref) => {
     const groupRef = useRef<THREE.Group>(null);
     const settings = useCarouselSettings();
-    const { currentYRotationRef } = useCarouselRotation(groupRef);
+    const { currentYRotationRef } = useCarouselRotation(
+      groupRef,
+      {},
+      ({ rotation, angularVelocity }) => {
+        if (!groupRef.current || models.length === 0) return;
+        const stepAngle = (Math.PI * 2) / models.length;
+        // Compute floating index from rotation
+        const indexFloat =
+          ((FRONT_OF_CAROUSEL_ANGLE - rotation) / (Math.PI * 2)) *
+          models.length;
+        let nearestIndex = Math.round(indexFloat);
+        // Wrap to [0, length-1]
+        nearestIndex =
+          ((nearestIndex % models.length) + models.length) % models.length;
+
+        // If flick velocity is strong, bias to next/prev in the direction of velocity
+        const VELOCITY_THRESHOLD = 0.0006; // rad/ms
+        let targetIndex = nearestIndex;
+        if (Math.abs(angularVelocity) > VELOCITY_THRESHOLD) {
+          // Positive angular velocity means rotation increasing → move to previous index
+          const direction = angularVelocity > 0 ? -1 : 1;
+          targetIndex =
+            (((nearestIndex + direction) % models.length) + models.length) %
+            models.length;
+        }
+
+        const baseAngle = (targetIndex / models.length) * Math.PI * 2;
+        const desiredRotation = FRONT_OF_CAROUSEL_ANGLE - baseAngle;
+        const current = groupRef.current.rotation.y;
+        const delta = closestAngleDelta(current, desiredRotation);
+        const target = current + delta;
+        animationRef.current = {
+          isAnimating: true,
+          startTime: performance.now(),
+          from: current,
+          to: target,
+          durationMs: 450,
+        };
+      }
+    );
     const animationRef = useRef<{
       isAnimating: boolean;
       startTime: number;
