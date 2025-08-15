@@ -27,3 +27,66 @@ body::-webkit-scrollbar {
   z-index: 1000;
   pointer-events: auto;
 }
+
+/* Page transition animations */
+.page-fade-enter {
+  opacity: 0.01;
+}
+.page-fade-enter-active {
+  opacity: 1;
+  transition: opacity 250ms ease-in-out;
+}
+.page-fade-exit {
+  opacity: 1;
+}
+.page-fade-exit-active {
+  opacity: 0.01;
+  transition: opacity 250ms ease-in-out;
+}
+
+/* Description slider transitions */
+.desc-left-enter {
+  opacity: 0.01;
+  transform: translateX(16px) scale(0.98);
+  filter: blur(2px);
+}
+.desc-left-enter-active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0);
+  transition: opacity 300ms ease, transform 300ms ease, filter 300ms ease;
+}
+.desc-left-exit {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0);
+}
+.desc-left-exit-active {
+  opacity: 0.01;
+  transform: translateX(-16px) scale(0.98);
+  filter: blur(2px);
+  transition: opacity 300ms ease, transform 300ms ease, filter 300ms ease;
+}
+
+.desc-right-enter {
+  opacity: 0.01;
+  transform: translateX(-16px) scale(0.98);
+  filter: blur(2px);
+}
+.desc-right-enter-active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0);
+  transition: opacity 300ms ease, transform 300ms ease, filter 300ms ease;
+}
+.desc-right-exit {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0);
+}
+.desc-right-exit-active {
+  opacity: 0.01;
+  transform: translateX(16px) scale(0.98);
+  filter: blur(2px);
+  transition: opacity 300ms ease, transform 300ms ease, filter 300ms ease;
+}

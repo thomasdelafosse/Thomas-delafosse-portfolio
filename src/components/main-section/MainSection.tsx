@@ -1,11 +1,11 @@
 import Carousel3D from "@/components/carousel-3d/CarouselCanvas";
 import { CarouselCanvasApi } from "@/types/types";
 import { FocusData, ModelData } from "@/types/types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createRef, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import ImageCarousel from "@/components/image-carousel/ImageCarousel";
 import MorphingTextOverlay from "@/components/ui-background-pointillisme/MorphingTextOverlay";
+import { CSSTransition, SwitchTransition } from "react-transition-group";
 
 interface MainSectionTypes {
   projectModels: ModelData[];
@@ -19,9 +19,13 @@ const MainSection = ({
 }: MainSectionTypes) => {
   const [focusedInfo, setFocusedInfo] = useState<FocusData | null>(null);
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [transitionDirection, setTransitionDirection] = useState<
+    "next" | "prev"
+  >("next");
   const infoRef = useRef<HTMLDivElement | null>(null);
   const carouselRef = useRef<CarouselCanvasApi | null>(null);
   const didMountRef = useRef(false);
+  const pendingScrollRef = useRef<null | "info">(null);
 
   useEffect(() => {
     if (!focusedInfo && projectModels.length > 0) {
@@ -50,7 +54,8 @@ const MainSection = ({
     if (hasScrolled) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      handleScrollToInfo();
+      // Defer scroll until morphing completes
+      pendingScrollRef.current = "info";
     }
   };
 
@@ -60,9 +65,8 @@ const MainSection = ({
       didMountRef.current = true;
       return;
     }
-    requestAnimationFrame(() => {
-      infoRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-    });
+    // Defer scroll; will execute when morphing completes
+    pendingScrollRef.current = "info";
   }, [focusedInfo]);
 
   const parsedDescription = useMemo(() => {
@@ -189,12 +193,21 @@ const MainSection = ({
           yOffset={0.5}
           textScale={1.0}
           className="z-10"
+          onMorphComplete={() => {
+            if (pendingScrollRef.current === "info") {
+              pendingScrollRef.current = null;
+              handleScrollToInfo();
+            }
+          }}
         />
         <Carousel3D
           ref={carouselRef}
           models={projectModels}
           onModelProgress={onModelProgress}
-          onFocusedModelInfoChange={setFocusedInfo}
+          onFocusedModelInfoChange={(info) => {
+            setFocusedInfo(info);
+            pendingScrollRef.current = "info";
+          }}
           onScrollToInfo={handleScrollToInfo}
         />
         <button
@@ -226,38 +239,52 @@ const MainSection = ({
         ref={infoRef}
         className="relative w-full flex justify-center px-4 py-8"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.3 }}
-          className="relative max-w-3xl w-full text-center bg-black/80 text-white whitespace-pre-line overflow-hidden p-6 md:p-8 pb-16 text-base md:text-lg"
-        >
-          {parsedDescription}
-        </motion.div>
+        {(() => {
+          const descNodeRef = useMemo(
+            () => createRef<HTMLDivElement>(),
+            [focusedInfo?.path]
+          );
+          return (
+            <SwitchTransition mode="out-in">
+              <CSSTransition
+                key={focusedInfo?.path ?? "__none__"}
+                classNames={
+                  transitionDirection === "next" ? "desc-left" : "desc-right"
+                }
+                timeout={300}
+                nodeRef={descNodeRef}
+              >
+                <div
+                  ref={descNodeRef}
+                  className="relative max-w-3xl w-full text-center bg-black/80 text-white whitespace-pre-line overflow-hidden p-6 md:p-8 pb-16 text-base md:text-lg"
+                >
+                  {parsedDescription}
+                </div>
+              </CSSTransition>
+            </SwitchTransition>
+          );
+        })()}
 
-        <div className="absolute bottom-2 left-0 right-0 z-10 px-2 sm:px-4 md:px-8 lg:px-104">
-          <div className="flex w-full items-center justify-between">
-            <button
-              onClick={() => {
-                carouselRef.current?.prev();
-              }}
-              className="px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
-              aria-label="Previous project"
-            >
-              PREVIOUS
-            </button>
-            <button
-              onClick={() => {
-                carouselRef.current?.next();
-              }}
-              className="px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
-              aria-label="Next project"
-            >
-              NEXT
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={() => {
+            setTransitionDirection("prev");
+            carouselRef.current?.prev();
+          }}
+          className="fixed bottom-4 left-4 z-50 px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
+          aria-label="Previous project"
+        >
+          PREVIOUS
+        </button>
+        <button
+          onClick={() => {
+            setTransitionDirection("next");
+            carouselRef.current?.next();
+          }}
+          className="fixed bottom-4 right-4 z-50 px-4 py-2 bg-black/80 hover:bg-black/40 text-white backdrop-blur border border-white/20 cursor-pointer"
+          aria-label="Next project"
+        >
+          NEXT
+        </button>
       </div>
       <ImageCarousel
         images={sweetSpotImages}

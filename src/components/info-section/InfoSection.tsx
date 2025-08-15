@@ -1,5 +1,3 @@
-import { motion } from "framer-motion";
-
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
 import BackgroundParticles from "../ui-background-pointillisme/backgroundParticles2d";
@@ -24,11 +22,7 @@ const InfoSection = ({
   } as const;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
+    <div
       style={pointillistBackgroundStyle}
       className="fixed inset-0 z-40 flex flex-col items-center justify-center p-6 md:p-8 text-white cursor-pointer"
     >
@@ -48,7 +42,7 @@ const InfoSection = ({
           <ContactSection />
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

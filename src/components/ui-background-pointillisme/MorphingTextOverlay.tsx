@@ -17,6 +17,7 @@ type MorphingTextOverlayProps = {
   textScale?: number;
   position?: "fixed" | "absolute";
   className?: string;
+  onMorphComplete?: () => void;
 };
 
 export default function MorphingTextOverlay({
@@ -25,6 +26,7 @@ export default function MorphingTextOverlay({
   textScale = 1,
   position = "absolute",
   className,
+  onMorphComplete,
 }: MorphingTextOverlayProps) {
   const debug = useControls(
     "MorphingTextOverlay",
@@ -68,6 +70,7 @@ export default function MorphingTextOverlay({
         safeHeightPct={debug.safeHeightPct}
         canvasW={debug.canvasW}
         canvasH={debug.canvasH}
+        onMorphComplete={onMorphComplete}
       />
     </OrthoCanvas>
   );
@@ -84,6 +87,7 @@ function TextParticles({
   safeHeightPct = 0.12,
   canvasW = 430,
   canvasH = 290,
+  onMorphComplete,
 }: {
   text: string;
   yOffset?: number;
@@ -95,6 +99,7 @@ function TextParticles({
   safeHeightPct?: number;
   canvasW?: number;
   canvasH?: number;
+  onMorphComplete?: () => void;
 }) {
   const { size, camera } = useThree();
   const ortho = camera as THREE.OrthographicCamera;
@@ -172,6 +177,7 @@ function TextParticles({
     new THREE.Vector3(0, yOffset * halfHeightWorld, 0)
   );
   const morphRef = useRef(0);
+  const notifiedRef = useRef(false);
 
   useEffect(() => {
     geometry.setAttribute(
@@ -203,6 +209,10 @@ function TextParticles({
       materialRef.current.uniforms.uTargetOffset.value.copy(
         targetOffsetRef.current
       );
+    }
+    if (!notifiedRef.current && morphRef.current > 0.96) {
+      notifiedRef.current = true;
+      onMorphComplete?.();
     }
   });
 
