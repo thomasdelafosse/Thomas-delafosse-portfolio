@@ -1,8 +1,8 @@
 import AboutMeSection from "./AboutMeSection";
 import ContactSection from "./ContactSection";
-import BackgroundParticles from "@/components/ui-background-pointillisme/BackgroundParticles2d";
 import PointillismBackground from "@/components/ui-background-pointillisme/PointillismBackground";
 import Button from "@/components/ui/Button";
+import BackgroundParticles from "@/components/ui-background-pointillisme/BackgroundParticles2d";
 
 interface InfoSectionTypes {
   onDiscoverProjects: () => void;
