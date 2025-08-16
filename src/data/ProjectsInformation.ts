@@ -3,7 +3,7 @@ const projectModels = [
     path: "/models/logo-sweet-spot.glb",
     title: "Sweet Spot",
     description:
-      "Sweet Spot, FEB 2025 – MAR 2025\n <Link href='https://sweetspot.paris' target='_blank' rel='noopener noreferrer'>https://sweetspot.paris</Link>\n\n Click here to discover the previous version\n\n • Frontend: Creation of a ticket office website with Next.js App Router and TypeScript \n • Backend: Persisting user data and storing tickets with Supabase \n • App: Creation of an app to scan tickets using React Native (+ Expo)\n• Three.js: 3D replica of a Dolby Atmos studio with Three.js \n• Blender: Creating 3D models with Blender (+ 2D unwrapping and baking) \n• Resend: Managing transactional emails with Resend",
+      "Sweet Spot, FEB 2025 – PRESENT\n <Link href='https://sweetspot.paris' target='_blank' rel='noopener noreferrer'>https://sweetspot.paris</Link>\n\n Click here to discover the previous version\n\n • Frontend: Creation of a ticket office website with Next.js App Router and TypeScript \n • Backend: Persisting user data and storing tickets with Supabase \n • App: Creation of an app to scan tickets using React Native (+ Expo)\n• Three.js: 3D replica of a Dolby Atmos studio with Three.js \n• Blender: Creating 3D models with Blender (+ 2D unwrapping and baking) \n• Resend: Managing transactional emails with Resend",
     url: "https://sweetspot.paris",
   },
   {
