@@ -14,7 +14,7 @@ const projectModels = [
     url: "https://mathieulegal.com",
   },
   {
-    path: "/models/3Dchably.glb",
+    path: "/models/logo-maison-mine.glb",
     title: "Maison Mine",
     description:
       "Maison Mine, JAN 2025 – FEB 2025\n <Link href='https://maisonmine.com' target='_blank' rel='noopener noreferrer'>https://maisonmine.com</Link>\n\n• Website for the Maison Mine company \n• Frontend: website refont + design improvements \n• Backend: Implementation of Sanity CMS for the client \n• Three.js: Creation of 3D models using 3daistudio + implementation with Three.js",

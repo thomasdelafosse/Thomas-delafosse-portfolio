@@ -14,7 +14,7 @@ const MODEL_CONFIG: Record<string, ModelConfigOverride> = {
     scaleMultiplier: 1,
     initialOverride: { x: -2, z: 0 },
   },
-  "/models/3Dchably.glb": {
+  "/models/logo-maison-mine.glb": {
     scaleMultiplier: 0.9,
   },
 };
