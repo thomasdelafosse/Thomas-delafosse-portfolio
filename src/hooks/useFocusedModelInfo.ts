@@ -9,30 +9,21 @@ export function useFocusedModelInfo(
   onModelFocusStatusChange?: (focused: boolean) => void
 ) {
   const [focusedModelInfo, setFocusedModelInfo] = useState<FocusData | null>(
-    // Initialize with the first model if available
-    models.length > 0
-      ? { description: models[0].description, path: models[0].path }
-      : null
+    null
   );
-  const [currentIndex, setCurrentIndex] = useState<number>(
-    models.length > 0 ? 0 : -1
-  );
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
 
   // Ref to store the timeout ID for debouncing
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Set initial focus status if models are present
-    if (models.length > 0 && onModelFocusStatusChange) {
-      onModelFocusStatusChange(true);
-    }
     // Cleanup timeout on unmount
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, [models, onModelFocusStatusChange]); // Added onModelFocusStatusChange dependency
+  }, []);
 
   const handleFocusChange = useCallback(
     (

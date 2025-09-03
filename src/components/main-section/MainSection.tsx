@@ -28,15 +28,6 @@ const MainSection = ({
   const pendingScrollRef = useRef<null | "info">(null);
   const descNodeRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    if (!focusedInfo && projectModels.length > 0) {
-      setFocusedInfo({
-        description: projectModels[0].description,
-        path: projectModels[0].path,
-      });
-    }
-  }, [focusedInfo, projectModels]);
-
   const handleScrollToInfo = () => {
     infoRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -166,6 +157,14 @@ const MainSection = ({
       style={style}
     >
       <div className="relative w-full h-[100svh] md:h-screen">
+        {/* Loading overlay until first focused project is ready */}
+        {!focusedInfo ? (
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+            <div className="px-4 py-2 rounded bg-black/60 text-white text-lg md:text-xl animate-pulse">
+              Loading projects…
+            </div>
+          </div>
+        ) : null}
         {/** Morphing title over the carousel */}
         <MorphingTextOverlay
           title={
