@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
     router.pathname === "/"
       ? "Thomas Delafosse - portfolio"
       : router.pathname === "/projects"
-      ? "Thomas Delafosse - projets"
+      ? "Thomas Delafosse - projects"
       : "Thomas Delafosse";
   return (
     <>
